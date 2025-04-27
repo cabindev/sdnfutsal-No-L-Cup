@@ -1,26 +1,250 @@
+@import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --futsal-purple: #37185B;
+  --futsal-dark: #100619;
+  --futsal-blue: #0066CC;
+  --futsal-gold: #FFA500;
+  --futsal-orange: #FF6B00;
+  /* เพิ่มสีจากโลโก้ */
+  --futsal-navy: #2c2f72;
+  --futsal-green: #10b981;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Prompt', sans-serif;
+}
+
+/* เพิ่ม transition ให้กับลิงก์ต่างๆ */
+a {
+  transition: all 0.3s ease;
+}
+
+/* สร้าง gradient background */
+.bg-gradient-overlay {
+  background: linear-gradient(135deg, var(--futsal-purple) 0%, rgba(16, 6, 25, 0.9) 100%);
+}
+
+/* เพิ่ม style สำหรับ scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--futsal-dark);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--futsal-gold);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--futsal-orange);
+}
+
+@keyframes gradient-x {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-gradient-x {
+  animation: gradient-x 15s ease infinite;
+}
+
+.bg-size-200 {
+  background-size: 200% 200%;
+}
+
+@keyframes fadeDown {
+  0% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeDown {
+  animation: fadeDown 0.3s ease-out forwards;
+}
+
+/* Hero.tsx */
+.bg-radial-vignette {
+  background: radial-gradient(circle, transparent 50%, rgba(0, 0, 0, 0.7) 150%);
+}
+
+/* Animation สำหรับ LogoLoader */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+@keyframes glow {
+  0%, 100% { filter: drop-shadow(0 0 5px rgba(255, 165, 0, 0.5)); }
+  50% { filter: drop-shadow(0 0 15px rgba(255, 165, 0, 0.7)); }
+}
+
+@keyframes floating {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes dot-pulse {
+  0%, 33% { opacity: 0; }
+  34%, 66% { opacity: 1; }
+  67%, 100% { opacity: 0; }
+}
+
+.logo-spin {
+  animation: spin 6s linear infinite;
+}
+
+.logo-pulse {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.logo-glow {
+  animation: glow 2s ease-in-out infinite;
+}
+
+.float-animation {
+  animation: floating 3s ease-in-out infinite;
+}
+
+.dot-pulse-1 {
+  animation: dot-pulse 1.4s infinite 0.2s;
+}
+
+.dot-pulse-2 {
+  animation: dot-pulse 1.4s infinite 0.4s;
+}
+
+.dot-pulse-3 {
+  animation: dot-pulse 1.4s infinite 0.6s;
+}
+
+/* พาร์ติเคิลสำหรับ Loader */
+.particle {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* ปรับใช้สีของทีม */
+.text-futsal-gold {
+  color: var(--futsal-gold);
+}
+
+.text-futsal-orange {
+  color: var(--futsal-orange);
+}
+
+.text-futsal-navy {
+  color: var(--futsal-navy);
+}
+
+.text-futsal-blue {
+  color: var(--futsal-blue);
+}
+
+.text-futsal-green {
+  color: var(--futsal-green);
+}
+
+.bg-futsal-gold {
+  background-color: var(--futsal-gold);
+}
+
+.bg-futsal-orange {
+  background-color: var(--futsal-orange);
+}
+
+.bg-futsal-navy {
+  background-color: var(--futsal-navy);
+}
+
+.bg-futsal-blue {
+  background-color: var(--futsal-blue);
+}
+
+.bg-futsal-green {
+  background-color: var(--futsal-green);
+}
+
+/* ไล่สีสำหรับข้อความ */
+.text-gradient-gold-orange {
+  background: linear-gradient(90deg, var(--futsal-gold), var(--futsal-orange));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-fill-color: transparent;
+}
+
+/* เอฟเฟกต์เงาสำหรับองค์ประกอบต่างๆ */
+.shadow-futsal {
+  box-shadow: 0 4px 15px rgba(255, 165, 0, 0.3);
+}
+
+/* ปรับแต่งสไตล์สำหรับปุ่ม */
+.btn-futsal {
+  background: linear-gradient(90deg, var(--futsal-gold), var(--futsal-orange));
+  color: white;
+  padding: 0.5rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-futsal:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(255, 165, 0, 0.4);
+}
+
+/* Loading Screen */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) translateX(0);
+  }
+  50% {
+    transform: translateY(-20px) translateX(10px);
+  }
+}
+
+@keyframes progress {
+  0% {
+    width: 0%;
+    left: 0;
+  }
+  50% {
+    width: 100%;
+    left: 0;
+  }
+  100% {
+    width: 0%;
+    left: 100%;
+  }
+}
+
+.animate-progress {
+  animation: progress 2s ease-in-out infinite;
 }
