@@ -1,4 +1,3 @@
-// coach/actions/delete.ts
 'use server'
 
 import { revalidatePath } from 'next/cache';
@@ -16,7 +15,10 @@ export async function deleteCoach(id: number) {
     // ตรวจสอบว่ามีสิทธิ์ลบข้อมูลหรือไม่
     const coach = await prisma.coach.findUnique({
       where: { id },
-      select: { userId: true },
+      select: { 
+        userId: true,
+        batchParticipations: true  // เพิ่มการเลือกข้อมูลการเข้าร่วมรุ่น
+      },
     });
         
     if (!coach) {
@@ -26,6 +28,12 @@ export async function deleteCoach(id: number) {
     if (coach.userId !== session.user.id && session.user.role !== 'ADMIN') {
       return { success: false, error: 'ไม่มีสิทธิ์ลบข้อมูลนี้' };
     }
+    
+    // ต้องลบข้อมูลที่เกี่ยวข้องก่อน
+    // ลบข้อมูลการเข้าร่วมรุ่นอบรม
+    await prisma.batchParticipant.deleteMany({
+      where: { coachId: id },
+    });
         
     // ลบข้อมูลโค้ช
     await prisma.coach.delete({

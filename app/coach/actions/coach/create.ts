@@ -23,16 +23,16 @@ export async function createCoach(formData: FormData): Promise<ActionResult> {
       return { success: false, error: "คุณต้องเข้าสู่ระบบก่อนลงทะเบียนเป็นโค้ช" };
     }
     
-    // ตรวจสอบว่ามี userId หรือไม่
+    // ตรวจสอบว่ามี userId หรือไม่ และใช้จาก session โดยตรง
     let userId = session.user.id;
     
     if (!userId) {
       return { success: false, error: "ไม่สามารถระบุตัวตนผู้ใช้ได้" };
     }
     
-    // ถ้ามีการส่ง userId มาใน formData ให้ใช้ค่านั้น (สำหรับ admin ที่เพิ่มโค้ชให้ผู้ใช้อื่น)
+    // ถ้ามีการส่ง userId มาใน formData และผู้ใช้เป็น admin ให้ใช้ค่านั้น
     const formDataUserId = formData.get('userId');
-    if (formDataUserId) {
+    if (formDataUserId && session.user.role === 'ADMIN') {
       userId = Number(formDataUserId);
     }
     
@@ -54,6 +54,17 @@ export async function createCoach(formData: FormData): Promise<ActionResult> {
     if (!userExists) {
       return { success: false, error: "ไม่พบข้อมูลผู้ใช้ในระบบ" };
     }
+
+    // ตรวจสอบว่าผู้ใช้คนนี้ได้ลงทะเบียนเป็นโค้ชไปแล้วหรือไม่
+    const existingCoachByUser = await prisma.coach.findFirst({
+      where: { userId }
+    });
+
+    if (existingCoachByUser) {
+      return { success: false, error: "คุณได้ลงทะเบียนเป็นโค้ชไปแล้ว ไม่สามารถลงทะเบียนซ้ำได้" };
+    }
+
+
 
     // ดึงข้อมูลจาก FormData
     const gender = formData.get('gender') as string;
@@ -81,26 +92,25 @@ export async function createCoach(formData: FormData): Promise<ActionResult> {
     const province = formData.get('province') as string;
     const zone = formData.get('zone') as string || null;
     
-    // ดึงข้อมูลรุ่นที่เลือก
-    // ข้อมูลอาจมาในรูปแบบต่างๆ ขึ้นอยู่กับว่าฟอร์มส่งมาอย่างไร
-    let selectedBatchIds: number[] = [];
+    // ดึงข้อมูลรุ่นที่เลือก - แก้ไขให้รับเพียงรุ่นเดียว
+    let selectedBatchId: number | null = null;
     
     // กรณีส่งมาเป็น array ในชื่อ selectedBatchIds[]
     const batchIdsFromArray = formData.getAll('selectedBatchIds[]');
     if (batchIdsFromArray.length > 0) {
-      selectedBatchIds = batchIdsFromArray.map(id => Number(id));
+      selectedBatchId = Number(batchIdsFromArray[0]); // เลือกแค่รุ่นแรก
     } 
-    // กรณีส่งมาเป็น string ในชื่อ selectedBatchIds คั่นด้วยเครื่องหมาย , หรือ ;
+    // กรณีส่งมาเป็น string ในชื่อ selectedBatchIds
     else {
       const batchIdsStr = formData.get('selectedBatchIds') as string;
       if (batchIdsStr) {
         if (batchIdsStr.includes(',')) {
-          selectedBatchIds = batchIdsStr.split(',').map(id => Number(id.trim()));
+          selectedBatchId = Number(batchIdsStr.split(',')[0].trim()); // เลือกแค่รุ่นแรก
         } else if (batchIdsStr.includes(';')) {
-          selectedBatchIds = batchIdsStr.split(';').map(id => Number(id.trim()));
+          selectedBatchId = Number(batchIdsStr.split(';')[0].trim()); // เลือกแค่รุ่นแรก
         } else {
           // กรณีมีเพียงค่าเดียว
-          selectedBatchIds = [Number(batchIdsStr)];
+          selectedBatchId = Number(batchIdsStr);
         }
       }
     }
@@ -192,36 +202,23 @@ export async function createCoach(formData: FormData): Promise<ActionResult> {
       }
     });
     
-    // สร้าง BatchParticipant สำหรับแต่ละรุ่นที่เลือก
-    if (selectedBatchIds.length > 0) {
+    // สร้าง BatchParticipant สำหรับรุ่นที่เลือก
+    if (selectedBatchId) {
       // ตรวจสอบว่ารุ่นมีอยู่จริงหรือไม่
-      const existingBatches = await prisma.trainingBatch.findMany({
-        where: {
-          id: {
-            in: selectedBatchIds
-          }
-        },
-        select: {
-          id: true
-        }
+      const existingBatch = await prisma.trainingBatch.findUnique({
+        where: { id: selectedBatchId }
       });
       
-      const validBatchIds = existingBatches.map(batch => batch.id);
-      
-      if (validBatchIds.length > 0) {
+      if (existingBatch) {
         // สร้างข้อมูลการลงทะเบียน
-        await Promise.all(
-          validBatchIds.map(batchId => 
-            prisma.batchParticipant.create({
-              data: {
-                coachId: coach.id,
-                batchId,
-                status: 'PENDING',
-                isAttended: false
-              }
-            })
-          )
-        );
+        await prisma.batchParticipant.create({
+          data: {
+            coachId: coach.id,
+            batchId: selectedBatchId,
+            status: 'PENDING',
+            isAttended: false
+          }
+        });
       }
     }
     
@@ -255,7 +252,7 @@ export async function createCoach(formData: FormData): Promise<ActionResult> {
       success: true, 
       data: {
         ...coachWithRegistrations,
-        selectedBatchIds: selectedBatchIds.length > 0 ? selectedBatchIds : undefined
+        selectedBatchIds: selectedBatchId ? [selectedBatchId] : undefined
       }
     };
       

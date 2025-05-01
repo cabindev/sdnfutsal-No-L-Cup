@@ -26,19 +26,71 @@ import {
 import prisma from "@/app/lib/db";
 
 export const metadata: Metadata = {
-  title: "รายชื่อโค้ชฟุตซอล | SDN FUTSAL",
-  description: "รายชื่อโค้ชฟุตซอลที่ผ่านการอบรมอย่างเป็นทางการจากสมาคมฟุตซอลแห่งประเทศไทย",
+  title: "รายชื่อโค้ชฟุตซอล | SDN FUTSAL NO L CUP",
+  description: "รายชื่อโค้ชฟุตซอลที่ผ่านการอบรมอย่างเป็นทางการจาก SDN FUTSAL และกรมพละศึกษา ",
 };
+
+// ใช้ interface แทน any เพื่อความปลอดภัยของ type
+interface ParticipationWithBatch {
+  id: number;
+  batch: {
+    batchNumber: number;
+    year: number;
+  };
+}
+
+interface CoachWithBatch {
+  id: number;
+  user: {
+    firstName: string;
+    lastName: string;
+    image?: string | null;
+  };
+  teamName?: string | null;
+  coachExperience: number;
+  location?: {
+    province: string;
+  } | null;
+  batchParticipations: ParticipationWithBatch[];
+}
+
+interface BatchInfo {
+  id: number;
+  batchNumber: number;
+  year: number;
+  startDate: Date;
+  endDate: Date;
+  location: string;
+  description?: string | null;
+  isActive: boolean;
+}
 
 export default async function CoachesPage({
   searchParams
 }: {
   searchParams: Promise<{ year?: string; batch?: string; search?: string; province?: string; }>
 }) {
-  // ดึงข้อมูลจาก URL params
+  // ดึงข้อมูลจาก URL params และตรวจสอบความถูกต้อง
   const resolvedParams = await searchParams;
-  const year = resolvedParams.year ? parseInt(resolvedParams.year) : undefined;
-  const batchNumber = resolvedParams.batch ? parseInt(resolvedParams.batch) : undefined;
+  
+  // ปีอบรม - ตรวจสอบว่าเป็นตัวเลขที่ถูกต้อง
+  let year: number | undefined = undefined;
+  if (resolvedParams.year) {
+    const parsedYear = parseInt(resolvedParams.year);
+    if (!isNaN(parsedYear)) {
+      year = parsedYear;
+    }
+  }
+  
+  // รุ่นที่อบรม - ตรวจสอบว่าเป็นตัวเลขที่ถูกต้อง
+  let batchNumber: number | undefined = undefined;
+  if (resolvedParams.batch && resolvedParams.batch !== 'all') {
+    const parsedBatch = parseInt(resolvedParams.batch);
+    if (!isNaN(parsedBatch)) {
+      batchNumber = parsedBatch;
+    }
+  }
+  
   const search = resolvedParams.search || '';
   const province = resolvedParams.province || '';
   
@@ -66,7 +118,7 @@ export default async function CoachesPage({
   });
   
   // สร้างเงื่อนไขในการค้นหา
-  let where: any = {
+  const where: Record<string, any> = {
     batchParticipations: {
       some: {
         status: 'APPROVED',
@@ -75,10 +127,12 @@ export default async function CoachesPage({
     }
   };
   
-  if (batchNumber) {
+  // เพิ่มเงื่อนไขการค้นหาตามรุ่น (ถ้ามี)
+  if (batchNumber !== undefined) {
     where.batchParticipations.some.batch.batchNumber = batchNumber;
   }
   
+  // เพิ่มเงื่อนไขการค้นหาตามชื่อ (ถ้ามี)
   if (search) {
     where.OR = [
       { user: { firstName: { contains: search } } },
@@ -87,6 +141,7 @@ export default async function CoachesPage({
     ];
   }
   
+  // เพิ่มเงื่อนไขการค้นหาตามจังหวัด (ถ้ามี)
   if (province && province !== 'all') {
     where.location = { province };
   }
@@ -121,6 +176,11 @@ export default async function CoachesPage({
   });
   
   // สร้างข้อมูลสถิติ
+  const uniqueProvinces = await prisma.location.findMany({
+    select: { province: true },
+    distinct: ['province']
+  });
+
   const stats = {
     totalCoaches: await prisma.coach.count({
       where: {
@@ -130,28 +190,16 @@ export default async function CoachesPage({
       }
     }),
     totalTrainings: await prisma.trainingBatch.count(),
-    provinces: await prisma.location.count({
-      select: { province: true },
-      distinct: ['province']
-    })
+    provinces: uniqueProvinces.length
   };
 
-  // จัดกลุ่มโค้ชตามรุ่นอบรม (สำหรับบางส่วนของ UI)
-  const coachesByBatch = coaches.reduce((acc: Record<string, any[]>, coach) => {
-    coach.batchParticipations.forEach(participation => {
-      const batchKey = `${participation.batch.batchNumber}-${participation.batch.year}`;
-      if (!acc[batchKey]) {
-        acc[batchKey] = [];
-      }
-      acc[batchKey].push({...coach, currentBatch: participation.batch});
-    });
-    return acc;
-  }, {});
+  // ดึงข้อมูลรุ่นที่เปิดรับสมัคร (ถ้ามี)
+  const activeBatches = batches.filter(batch => batch.isActive);
 
   return (
-    <>
-      {/* Hero Section */}
-      <section className="relative bg-futsal-navy overflow-hidden">
+    <div className="min-h-screen">
+      {/* Hero Section with good spacing */}
+      <section className="relative bg-futsal-navy overflow-hidden pt-20">
         <div className="absolute inset-0 bg-gradient-to-r from-futsal-navy/90 to-futsal-navy/70 z-10"></div>
         <div className="absolute inset-0 bg-[url('/images/coaches-bg.jpg')] bg-cover bg-center opacity-40"></div>
         
@@ -173,7 +221,7 @@ export default async function CoachesPage({
                 </div>
                 <div>
                   <div className="text-sm text-gray-300">โค้ชที่ได้รับการรับรอง</div>
-                  <div className="text-2xl font-bold text-white">{stats.totalCoaches}+</div>
+                  <div className="text-2xl font-bold text-white">{stats.totalCoaches}</div>
                 </div>
               </div>
               
@@ -239,7 +287,7 @@ export default async function CoachesPage({
             <h2 className="text-xl font-bold text-futsal-navy">ค้นหาโค้ชที่ผ่านการรับรอง</h2>
           </div>
           
-          <form action="/coaches" className="grid gap-4 md:grid-cols-4">
+          <form action="/coaches" method="get" className="grid gap-4 md:grid-cols-4">
             <div>
               <label htmlFor="year" className="block text-sm font-medium text-gray-700 mb-1">ปีที่อบรม</label>
               <Select name="year" defaultValue={selectedYear.toString()}>
@@ -247,18 +295,24 @@ export default async function CoachesPage({
                   <SelectValue placeholder="เลือกปี" />
                 </SelectTrigger>
                 <SelectContent>
-                  {uniqueYears.map(year => (
-                    <SelectItem key={year} value={year.toString()}>
-                      ปี {year}
+                  {uniqueYears.length > 0 ? (
+                    uniqueYears.map(year => (
+                      <SelectItem key={year} value={year.toString()}>
+                        ปี {year}
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <SelectItem value={new Date().getFullYear().toString()}>
+                      ปี {new Date().getFullYear()}
                     </SelectItem>
-                  ))}
+                  )}
                 </SelectContent>
               </Select>
             </div>
             
             <div>
               <label htmlFor="batch" className="block text-sm font-medium text-gray-700 mb-1">รุ่นที่อบรม</label>
-              <Select name="batch" defaultValue={batchNumber?.toString() || "all"}>
+              <Select name="batch" defaultValue={batchNumber ? batchNumber.toString() : "all"}>
                 <SelectTrigger className="bg-gray-50 border-gray-200">
                   <SelectValue placeholder="ทุกรุ่น" />
                 </SelectTrigger>
@@ -315,12 +369,12 @@ export default async function CoachesPage({
       </section>
       
       {/* Search Results Summary */}
-      {(search || province !== 'all' || batchNumber) && (
+      {(search || (province && province !== 'all') || batchNumber !== undefined) && (
         <div className="container mx-auto px-4 mb-4">
           <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
             <p className="text-sm text-gray-700">
               พบข้อมูลโค้ช <span className="font-semibold text-futsal-blue">{coaches.length}</span> รายการ
-              {batchNumber ? ` ในรุ่นที่ ${batchNumber}/${selectedYear}` : ''}
+              {batchNumber !== undefined ? ` ในรุ่นที่ ${batchNumber}/${selectedYear}` : ''}
               {province && province !== 'all' ? ` จังหวัด${province}` : ''}
               {search ? ` ที่ตรงกับคำค้นหา "${search}"` : ''}
             </p>
@@ -342,8 +396,8 @@ export default async function CoachesPage({
           </div>
         ) : (
           <>
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-futsal-navy">รายชื่อโค้ช</h2>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-futsal-navy mb-3 sm:mb-0">รายชื่อโค้ช</h2>
               
               <div className="flex items-center">
                 <span className="mr-2 text-sm text-gray-500">เรียงตาม:</span>
@@ -424,102 +478,6 @@ export default async function CoachesPage({
         )}
       </section>
       
-      {/* Call to Action */}
-      <section className="py-16 bg-futsal-navy">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">สนใจเข้าร่วมการอบรมโค้ชฟุตซอล?</h2>
-          <p className="text-gray-300 max-w-2xl mx-auto mb-8">
-            เสริมสร้างทักษะและความรู้ด้านฟุตซอลกับผู้เชี่ยวชาญ และรับวุฒิบัตรรับรองจากสมาคมฟุตซอลแห่งประเทศไทย
-          </p>
-          <div className="flex justify-center space-x-4">
-            <Button className="bg-futsal-orange hover:bg-futsal-orange/90 text-white px-8 py-6 rounded-full text-lg">
-              ดูรุ่นอบรมที่เปิดรับสมัคร
-            </Button>
-            <Button variant="outline" className="border-white text-white hover:bg-white/10 px-8 py-6 rounded-full text-lg">
-              ติดต่อสอบถาม
-            </Button>
-          </div>
-        </div>
-      </section>
-      
-      {/* Featured Batch (ถ้ามีการจัดรุ่นปัจจุบัน) */}
-      {batches.length > 0 && batches.some(batch => batch.isActive) && (
-        <section className="py-16 bg-gray-50">
-          <div className="container mx-auto px-4">
-            <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8">
-              <div>
-                <Badge className="bg-futsal-green text-white mb-2">เปิดรับสมัครขณะนี้</Badge>
-                <h2 className="text-2xl font-bold text-futsal-navy">การอบรมโค้ชฟุตซอลรุ่นล่าสุด</h2>
-                <p className="text-gray-600">โอกาสสำคัญในการพัฒนาตนเองกับผู้เชี่ยวชาญระดับชาติ</p>
-              </div>
-              
-              <Button asChild className="mt-4 md:mt-0 bg-futsal-blue hover:bg-futsal-blue/90">
-                <Link href="/training">
-                  สมัครเข้าร่วมการอบรม
-                  <ChevronRight className="h-4 w-4 ml-1" />
-                </Link>
-              </Button>
-            </div>
-            
-            <div className="bg-white rounded-2xl shadow overflow-hidden">
-              {batches.filter(batch => batch.isActive).slice(0, 1).map(batch => (
-                <div key={batch.id} className="grid md:grid-cols-2">
-                  <div className="p-8">
-                    <Badge className="mb-4 bg-futsal-gold/20 text-futsal-gold border-futsal-gold/20">
-                      รุ่นที่ {batch.batchNumber}/{batch.year}
-                    </Badge>
-                    
-                    <h3 className="text-xl font-bold text-futsal-navy mb-2">
-                      การอบรมโค้ชฟุตซอล
-                    </h3>
-                    
-                    <p className="text-gray-600 mb-6">
-                      {batch.description || 'เข้าร่วมการอบรมเพื่อพัฒนาทักษะและความรู้ด้านฟุตซอลกับผู้เชี่ยวชาญระดับชาติ พร้อมเทคนิคการฝึกซ้อมและการวิเคราะห์เกม'}
-                    </p>
-                    
-                    <div className="space-y-3 mb-6">
-                      <div className="flex items-start">
-                        <Calendar className="h-5 w-5 text-futsal-blue mt-1 mr-3" />
-                        <div>
-                          <div className="font-medium">วันที่จัดอบรม</div>
-                          <div className="text-gray-600">
-                            {new Date(batch.startDate).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' })} - 
-                            {new Date(batch.endDate).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' })}
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-start">
-                        <MapPin className="h-5 w-5 text-futsal-blue mt-1 mr-3" />
-                        <div>
-                          <div className="font-medium">สถานที่</div>
-                          <div className="text-gray-600">{batch.location}</div>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <Button asChild className="w-full md:w-auto bg-futsal-navy hover:bg-futsal-navy/90">
-                      <Link href={`/training/${batch.id}`}>
-                        ดูรายละเอียดเพิ่มเติม
-                        <ChevronRight className="h-4 w-4 ml-1" />
-                      </Link>
-                    </Button>
-                  </div>
-                  
-                  <div className="relative min-h-[300px] bg-gray-100">
-                    <Image 
-                      src="/images/futsal-coaching.jpg"
-                      alt="การอบรมโค้ชฟุตซอล"
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-    </>
+    </div>
   );
 }

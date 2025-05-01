@@ -14,7 +14,7 @@ import {
   Settings,
   Home,
   Award,
-  Search,
+  GraduationCap,
   ChevronDown
 } from "lucide-react"
 
@@ -58,9 +58,18 @@ export default function TopNav({ user }: TopNavProps) {
   // Define navigation tabs
   const navTabs = [
     { href: '/dashboard', text: 'ภาพรวม', icon: Home },
-    { href: '/dashboard/coach', text: 'โค้ชฟุตซอล', icon: Award },
-    { href: '/dashboard/training', text: 'การอบรม', icon: Award }
+    { href: '/dashboard/coach', text: 'โค้ช', icon: Award },
+    { href: '/dashboard/training', text: 'การอบรม', icon: GraduationCap }
   ]
+
+  // หัวข้อหน้าปัจจุบัน
+  const currentPageTitle = 
+    pathname === '/dashboard' ? 'แดชบอร์ด' :
+    pathname === '/dashboard/coach' ? 'จัดการโค้ชฟุตซอล' :
+    pathname.startsWith('/dashboard/coach/training') ? 'การอบรม' :
+    pathname.startsWith('/dashboard/training') ? 'การอบรม' :
+    pathname.startsWith('/dashboard/settings') ? 'ตั้งค่าระบบ' :
+    pathname.startsWith('/dashboard/profile') ? 'โปรไฟล์ของฉัน' : '';
 
   return (
     <header className={cn(
@@ -68,41 +77,53 @@ export default function TopNav({ user }: TopNavProps) {
       scrolled ? "shadow-md" : "shadow-sm",
       sidebarCollapsed ? "lg:pl-20" : "lg:pl-72"
     )}>
-      {/* Main header with search and profile */}
-      <div className="h-16 flex items-center px-4 border-b border-gray-100">
-        {/* ปุ่ม hamburger สำหรับมือถือ */}
-        <button
-          onClick={() => toggleMobileSidebar(true)}
-          className="lg:hidden mr-3 p-2 rounded-md text-gray-500 hover:bg-gray-100"
-          aria-label="เปิดเมนู"
-        >
-          <Menu className="h-5 w-5" />
-        </button>
+      <div className="flex items-center justify-between h-16 px-4 border-b border-gray-100">
+        {/* ส่วนซ้าย: ปุ่ม hamburger และ navigation tabs */}
+        <div className="flex items-center space-x-1">
+          {/* ปุ่ม hamburger สำหรับมือถือ */}
+          <button
+            onClick={() => toggleMobileSidebar(true)}
+            className="lg:hidden p-2 rounded-md text-gray-500 hover:bg-gray-100 mr-1"
+            aria-label="เปิดเมนู"
+          >
+            <Menu className="h-5 w-5" />
+          </button>
 
-        {/* หัวข้อหน้าปัจจุบัน */}
-        <div className="flex-shrink-0 flex items-center">
-          <h1 className="text-xl font-bold text-futsal-navy">
-            {pathname === '/dashboard' && 'แดชบอร์ด'}
-            {pathname === '/dashboard/coach' && 'จัดการโค้ชฟุตซอล'}
-            {pathname.startsWith('/dashboard/coach/training') && 'การอบรม'}
-            {pathname.startsWith('/dashboard/settings') && 'ตั้งค่าระบบ'}
-            {pathname.startsWith('/dashboard/profile') && 'โปรไฟล์ของฉัน'}
+          {/* หัวข้อหน้าปัจจุบัน (แสดงเฉพาะบนมือถือ) */}
+          <h1 className="text-lg font-bold text-futsal-navy mr-2 md:hidden">
+            {currentPageTitle}
           </h1>
-        </div>
-        
-        {/* ช่องค้นหา */}
-        <div className="hidden md:flex mx-6 flex-1 relative max-w-md">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Search className="h-4 w-4 text-gray-400" />
+
+          {/* Navigation tabs (ซ่อนบนมือถือ) */}
+          <div className="hidden md:flex items-center">
+            {navTabs.map(tab => {
+              const Icon = tab.icon;
+              const isActive = 
+                tab.href === '/dashboard' 
+                  ? pathname === '/dashboard'
+                  : pathname?.startsWith(tab.href);
+                  
+              return (
+                <Link
+                  key={tab.href}
+                  href={tab.href}
+                  className={cn(
+                    "inline-flex items-center px-3 py-2 text-sm font-medium mx-1 rounded-md transition-all",
+                    isActive
+                      ? "bg-futsal-orange/10 text-futsal-orange"
+                      : "text-gray-600 hover:bg-gray-100 hover:text-gray-800"
+                  )}
+                >
+                  <Icon className={cn("mr-1.5 h-4 w-4", isActive ? "text-futsal-orange" : "text-gray-500")} />
+                  {tab.text}
+                </Link>
+              )
+            })}
           </div>
-          <input
-            type="text"
-            placeholder="ค้นหาภายในระบบ..."
-            className="w-full bg-gray-50 border border-gray-200 rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-futsal-orange focus:border-transparent text-sm"
-          />
         </div>
         
-        <div className="flex items-center ml-auto">
+        {/* ส่วนขวา: Notification และ User menu */}
+        <div className="flex items-center space-x-2">
           {/* ปุ่มการแจ้งเตือน */}
           <button 
             className="p-2 text-gray-500 hover:bg-gray-100 rounded-full relative focus:outline-none"
@@ -113,7 +134,7 @@ export default function TopNav({ user }: TopNavProps) {
           </button>
           
           {/* เมนูผู้ใช้ */}
-          <div className="ml-3 relative profile-menu">
+          <div className="relative profile-menu">
             <button 
               className="flex items-center focus:outline-none gap-2 p-1.5 hover:bg-gray-100 rounded-lg"
               onClick={(e) => {
@@ -184,33 +205,6 @@ export default function TopNav({ user }: TopNavProps) {
             )}
           </div>
         </div>
-      </div>
-      
-      {/* Navigation tabs */}
-      <div className="h-10 flex items-center px-4 overflow-x-auto bg-gray-50">
-        {navTabs.map(tab => {
-          const Icon = tab.icon;
-          const isActive = 
-            tab.href === '/dashboard' 
-              ? pathname === '/dashboard'
-              : pathname?.startsWith(tab.href);
-              
-          return (
-            <Link
-              key={tab.href}
-              href={tab.href}
-              className={cn(
-                "inline-flex items-center px-4 py-2 border-b-2 text-sm font-medium h-full mr-2 whitespace-nowrap transition-all",
-                isActive
-                  ? "border-futsal-orange text-futsal-orange"
-                  : "border-transparent text-gray-600 hover:border-gray-300 hover:text-gray-800"
-              )}
-            >
-              <Icon className={cn("mr-1.5 h-4 w-4", isActive ? "text-futsal-orange" : "text-gray-500")} />
-              {tab.text}
-            </Link>
-          )
-        })}
       </div>
     </header>
   )

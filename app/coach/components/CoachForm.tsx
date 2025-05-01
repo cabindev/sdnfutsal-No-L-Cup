@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { Coach } from '../types/coach';
-import { BatchParticipant } from '../types/training-batch';
+import { TrainingBatch, BatchParticipant } from '../types/training-batch';
 import PersonalInfoForm from './PersonalInfoForm';
 import ContactInfoForm from './ContactInfoForm';
 import AddressForm from './AddressForm';
@@ -202,10 +202,10 @@ export default function CoachForm({
                 <div
                   className={`absolute left-0 flex h-8 w-8 items-center justify-center rounded-full border-2 ${
                     index < currentStep
-                      ? 'border-orange-600 bg-orange-600 text-white'
+                      ? "border-orange-600 bg-orange-600 text-white"
                       : index === currentStep
-                      ? 'border-orange-600 bg-white text-orange-600'
-                      : 'border-gray-300 bg-white text-gray-500'
+                      ? "border-orange-600 bg-white text-orange-600"
+                      : "border-gray-300 bg-white text-gray-500"
                   }`}
                 >
                   {index < currentStep ? (
@@ -216,7 +216,9 @@ export default function CoachForm({
                 </div>
                 <span
                   className={`text-sm ${
-                    index <= currentStep ? 'text-orange-600 font-medium' : 'text-gray-500'
+                    index <= currentStep
+                      ? "text-orange-600 font-medium"
+                      : "text-gray-500"
                   }`}
                 >
                   {step.title}
@@ -237,10 +239,10 @@ export default function CoachForm({
                 <div
                   className={`relative flex h-8 w-8 items-center justify-center rounded-full border-2 z-10 ${
                     index < currentStep
-                      ? 'border-orange-600 bg-orange-600 text-white'
+                      ? "border-orange-600 bg-orange-600 text-white"
                       : index === currentStep
-                      ? 'border-orange-600 bg-white text-orange-600'
-                      : 'border-gray-300 bg-white text-gray-500'
+                      ? "border-orange-600 bg-white text-orange-600"
+                      : "border-gray-300 bg-white text-gray-500"
                   }`}
                 >
                   {index < currentStep ? (
@@ -249,10 +251,12 @@ export default function CoachForm({
                     <span>{index + 1}</span>
                   )}
                 </div>
-                
+
                 <span
                   className={`mt-2 text-center text-xs ${
-                    index <= currentStep ? 'text-orange-600 font-medium' : 'text-gray-500'
+                    index <= currentStep
+                      ? "text-orange-600 font-medium"
+                      : "text-gray-500"
                   }`}
                 >
                   {step.title}
@@ -262,7 +266,7 @@ export default function CoachForm({
           </ul>
         </div>
       </div>
-      
+
       {/* แสดงฟอร์มปัจจุบัน - ใช้เงื่อนไข switch case แบบไม่ใช้ component เป็นตัวแปร */}
       <div className="mt-8 pt-4">
         {isSuccessStep ? (

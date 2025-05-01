@@ -8,6 +8,7 @@ import { Button } from '@/app/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/app/components/ui/card';
 import { Badge } from '@/app/components/ui/badge';
 import { Edit, Calendar, Pencil, Award, User, Phone, Mail, MapPin, Heart } from 'lucide-react';
+import { CoachDeleteButton } from '../components/CoachDeleteButton';
 
 export default async function CoachDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions);
@@ -124,16 +125,24 @@ export default async function CoachDetailPage({ params }: { params: Promise<{ id
         </div>
         
         <div className="flex space-x-2">
-          <Link href="/dashboard/coach">
-            <Button variant="outline">กลับไปหน้ารายการ</Button>
-          </Link>
-          <Link href={`/dashboard/coach/edit/${coach.id}`}>
-            <Button className="flex items-center gap-2">
-              <Edit className="h-4 w-4" />
-              แก้ไขข้อมูล
-            </Button>
-          </Link>
-        </div>
+  <Link href="/dashboard/coach">
+    <Button variant="outline">กลับไปหน้ารายการ</Button>
+  </Link>
+  <Link href={`/dashboard/coach/edit/${coach.id}`}>
+    <Button className="flex items-center gap-2">
+      <Edit className="h-4 w-4" />
+      แก้ไขข้อมูล
+    </Button>
+  </Link>
+  
+  {/* เพิ่มปุ่มลบสำหรับ admin เท่านั้น */}
+  {isAdmin && (
+    <CoachDeleteButton 
+      coachId={coach.id} 
+      coachName={`${coach.user.firstName} ${coach.user.lastName}`} 
+    />
+  )}
+</div>
       </div>
       
       {/* สถานะการอนุมัติ */}

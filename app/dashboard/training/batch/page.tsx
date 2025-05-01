@@ -4,8 +4,8 @@ import authOptions from "@/app/lib/configs/auth/authOptions";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/app/components/ui/button";
-import { Plus, Edit, Calendar, Users, MapPin, ChevronRight, CalendarDays, Activity, PieChart } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card";
+import { Plus, Edit, Calendar, Users, MapPin, ChevronRight, CalendarDays } from "lucide-react";
+import { Card, CardContent } from "@/app/components/ui/card";
 import { BatchDeleteButton } from "./components/BatchDeleteButton";
 import { getAllTrainingBatches } from "@/app/coach/actions/training-batch/get-all";
 import { Badge } from "@/app/components/ui/badge";
@@ -13,30 +13,12 @@ import prisma from "@/app/lib/db";
 import BatchStatCards from "./components/BatchStatCards";
 import BatchFilterTabs from "./components/BatchFilterTabs";
 import EmptyBatchState from "./components/EmptyBatchState";
-
-// กำหนด interface ให้ตรงกับโครงสร้างจริงของ TrainingBatch ใน Prisma
-interface TrainingBatch {
-  id: number;
-  batchNumber: number;
-  year: number;
-  startDate: string | Date;
-  endDate: string | Date;
-  registrationEndDate: string | Date;
-  location: string;
-  maxParticipants: number;
-  isActive: boolean;
-  description?: string;
-  createdAt?: Date;
-  updatedAt?: Date;
-  _count?: {
-    participants?: number;
-  };
-}
+import { TrainingBatchWithCount } from "@/app/coach/types/training-batch";
 
 export default async function TrainingBatchesPage({ 
   searchParams 
 }: { 
-  searchParams: Promise<{ filter?: string; }>;
+  searchParams: { filter?: string };
 }) {
   const session = await getServerSession(authOptions);
   
@@ -44,8 +26,7 @@ export default async function TrainingBatchesPage({
     redirect("/auth/signin?callbackUrl=/dashboard/training/batch");
   }
   
-  const resolvedParams = await searchParams;
-  const filter = resolvedParams.filter || 'all';
+  const filter = searchParams.filter || 'all';
   
   // สถิติรุ่นอบรม
   const stats = {
@@ -58,9 +39,9 @@ export default async function TrainingBatchesPage({
   };
 
   // ดึงรุ่นอบรมทั้งหมด
-  const batchesResult: any = await getAllTrainingBatches();
-  const batches: any[] = (batchesResult.success && batchesResult.data)
-    ? batchesResult.data.filter((batch: any) => {
+  const batchesResult = await getAllTrainingBatches();
+  const batches = (batchesResult.success && batchesResult.data)
+    ? batchesResult.data.filter((batch) => {
         if (filter === 'active') return batch.isActive;
         if (filter === 'inactive') return !batch.isActive;
         if (filter === 'upcoming') return new Date(batch.startDate) >= new Date();
@@ -80,7 +61,7 @@ export default async function TrainingBatchesPage({
   };
 
   // Helper function สำหรับแสดงจำนวนผู้เข้าร่วม
-  const getParticipantCount = (batch: TrainingBatch): number => {
+  const getParticipantCount = (batch: TrainingBatchWithCount): number => {
     return batch._count?.participants || 0;
   };
 

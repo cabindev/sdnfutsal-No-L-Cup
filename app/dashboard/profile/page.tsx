@@ -167,7 +167,7 @@ export default function ProfilePage() {
           </div>
         </Link>
         
-        <Link href="/dashboard/dashboard" className="flex items-center p-4 bg-white/90 backdrop-blur-md rounded-xl border border-gray-100 shadow-sm hover:bg-gray-50 transition-all duration-300">
+        <Link href="/dashboard/" className="flex items-center p-4 bg-white/90 backdrop-blur-md rounded-xl border border-gray-100 shadow-sm hover:bg-gray-50 transition-all duration-300">
           <div className="bg-blue-100 p-2 rounded-full mr-4">
             <ChevronRightIcon className="h-5 w-5 text-blue-600" />
           </div>

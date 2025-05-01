@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,28 +7,134 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 model User {
-  id                  Int            @id @default(autoincrement())
+  id                  Int       @id @default(autoincrement())
   firstName           String
   lastName            String
-  email               String         @unique
+  email               String    @unique
   password            String
   image               String?
-  role                Role           @default(MEMBER)
+  role                Role      @default(MEMBER)
   emailVerified       DateTime?
-  resetToken          String?        @unique
+  resetToken          String?   @unique
   resetTokenCreatedAt DateTime?
   resetTokenExpiresAt DateTime?
   lastPasswordReset   DateTime?
-  createdAt           DateTime       @default(now())
-  updatedAt           DateTime       @updatedAt
-  
-  // เพิ่มความสัมพันธ์กับโค้ช (1 User สามารถมีได้หลาย Coach Profile)
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
   coachProfiles       Coach[]
 
   @@index([email])
   @@index([role])
+}
+
+model Location {
+  id        Int      @id @default(autoincrement())
+  district  String
+  amphoe    String
+  province  String
+  zone      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  coaches   Coach[]
+
+  @@unique([district, amphoe, province], name: "district_amphoe_province")
+  @@index([province])
+  @@index([zone])
+}
+
+model TrainingBatch {
+  id                  Int                @id @default(autoincrement())
+  batchNumber         Int
+  year                Int
+  startDate           DateTime
+  endDate             DateTime
+  location            String
+  maxParticipants     Int
+  registrationEndDate DateTime
+  description         String?            @db.Text
+  isActive            Boolean            @default(true)
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+  participants        BatchParticipant[]
+}
+
+model BatchParticipant {
+  id           Int                 @id @default(autoincrement())
+  batchId      Int
+  coachId      Int
+  registeredAt DateTime            @default(now())
+  status       ParticipationStatus @default(PENDING)
+  notes        String?             @db.Text
+  isAttended   Boolean             @default(false)
+  batch        TrainingBatch       @relation(fields: [batchId], references: [id])
+  coach        Coach               @relation(fields: [coachId], references: [id])
+
+  @@unique([batchId, coachId])
+  @@index([batchId])
+  @@index([coachId])
+}
+
+model Coach {
+  id                    Int                @id @default(autoincrement())
+  userId                Int
+  teamName              String?
+  nickname              String?
+  gender                Gender
+  age                   Int
+  idCardNumber          String             @unique
+  address               String             @db.Text
+  phoneNumber           String
+  lineId                String?
+  religion              Religion
+  hasMedicalCondition   Boolean            @default(false)
+  medicalCondition      String?            @db.Text
+  foodPreference        FoodPreference     @default(GENERAL)
+  coachStatus           CoachStatus
+  coachExperience       Int
+  participationCount    Int
+  accommodation         Boolean            @default(true)
+  shirtSize             ShirtSize
+  expectations          String?            @db.Text
+  locationId            Int?
+  isApproved            Boolean            @default(false)
+  registrationCompleted Boolean            @default(false)
+  createdAt             DateTime           @default(now())
+  updatedAt             DateTime           @updatedAt
+  batchParticipations   BatchParticipant[]
+  location              Location?          @relation(fields: [locationId], references: [id])
+  user                  User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  trainings             CoachTraining[]
+
+  @@index([userId])
+  @@index([teamName])
+  @@index([locationId])
+}
+
+model TrainingCourse {
+  id             Int             @id @default(autoincrement())
+  name           String          @unique
+  description    String?         @db.Text
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  coachTrainings CoachTraining[]
+}
+
+model CoachTraining {
+  id             Int            @id @default(autoincrement())
+  coachId        Int
+  courseId       Int
+  certificateImg String?
+  trainingYear   Int?
+  notes          String?        @db.Text
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  coach          Coach          @relation(fields: [coachId], references: [id], onDelete: Cascade)
+  course         TrainingCourse @relation(fields: [courseId], references: [id])
+
+  @@unique([coachId, courseId])
+  @@index([coachId])
+  @@index([courseId])
 }
 
 enum Role {
@@ -42,229 +142,49 @@ enum Role {
   ADMIN
 }
 
-// เพิ่ม Enum สำหรับเพศ
 enum Gender {
-  MALE   // ชาย
-  FEMALE // หญิง
-  LGBTQ  // LGBTQ
+  MALE
+  FEMALE
+  LGBTQ
 }
 
-// เพิ่ม Enum สำหรับศาสนา
 enum Religion {
-  BUDDHIST // พุทธ
-  CHRISTIAN // คริสต์
-  ISLAM    // อิสลาม
-  HINDU    // ฮินดู
-  OTHER    // อื่นๆ
+  BUDDHIST
+  CHRISTIAN
+  ISLAM
+  HINDU
+  OTHER
 }
 
-// เพิ่ม Enum สำหรับประเภทอาหาร
 enum FoodPreference {
-  GENERAL     // ทั่วไป
-  VEGETARIAN  // มังสวิรัติ
-  HALAL       // อิสลาม
-  JAY         // เจ
+  GENERAL
+  VEGETARIAN
+  HALAL
+  JAY
 }
 
-// เพิ่ม Enum สำหรับสถานะของโค้ช
 enum CoachStatus {
-  GOVERNMENT_EMPLOYEE // ลูกจ้างราชการ
-  CIVIL_SERVANT      // ข้าราชการ
-  ACADEMY_EMPLOYEE   // ลูกจ้าง Academy
-  ACADEMY_OWNER      // เจ้าของ Academy
-  VOLUNTEER          // อาสาสมัครจิตอาสา
-  OTHER              // อื่นๆ
+  GOVERNMENT_EMPLOYEE
+  CIVIL_SERVANT
+  ACADEMY_EMPLOYEE
+  ACADEMY_OWNER
+  VOLUNTEER
+  OTHER
 }
 
-// เพิ่ม Enum สำหรับขนาดเสื้อ
 enum ShirtSize {
-  M     // Size M รอบอก 38 นิ้ว
-  L     // Size L รอบอก 40 นิ้ว
-  XL    // Size XL รอบอก 42 นิ้ว
-  XXL   // Size 2XL รอบอก 44 นิ้ว
-  XXXL  // Size 3XL รอบอก 46 นิ้ว
-  XXXXL // Size 4XL รอบอก 48 นิ้ว
-  XXXXXL // Size 5XL รอบอก 50 นิ้ว
+  M
+  L
+  XL
+  XXL
+  XXXL
+  XXXXL
+  XXXXXL
 }
 
-// เพิ่ม Model สำหรับข้อมูลตำแหน่ง
-model Location {
-  id            Int      @id @default(autoincrement())
-  district      String   // ตำบล
-  amphoe        String   // อำเภอ
-  province      String   // จังหวัด
-  zone          String?  // ภูมิภาค
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  
-  // เชื่อมโยงไปยังโค้ช
-  coaches       Coach[]
-
-  @@unique([district, amphoe, province], name: "district_amphoe_province")
-  @@index([province])
-  @@index([zone])
-}
-
-// เพิ่ม Model สำหรับจัดการรุ่นการอบรม
-model TrainingBatch {
-  id              Int               @id @default(autoincrement())
-  batchNumber     Int               // รุ่นที่ เช่น 1, 2
-  year            Int               // ปี พ.ศ. เช่น 2567, 2568
-  startDate       DateTime          // วันที่เริ่มอบรม
-  endDate         DateTime          // วันที่สิ้นสุดการอบรม
-  location        String            // สถานที่จัดอบรม
-  maxParticipants Int               // จำนวนผู้เข้าร่วมสูงสุด
-  registrationEndDate DateTime      // วันสิ้นสุดการรับสมัคร
-  description     String?           @db.Text // รายละเอียดเพิ่มเติม
-  isActive        Boolean           @default(true) // สถานะการเปิดรับสมัคร
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
-  
-  // เชื่อมโยงกับผู้สมัคร
-  participants    BatchParticipant[]
-}
-
-// สถานะของผู้เข้าร่วมอบรม
 enum ParticipationStatus {
-  PENDING   // รอการอนุมัติ
-  APPROVED  // อนุมัติแล้ว
-  REJECTED  // ไม่อนุมัติ
-  CANCELED  // ยกเลิกการเข้าร่วม
-}
-
-// เชื่อมโยงระหว่างรุ่นอบรมและโค้ช
-model BatchParticipant {
-  id             Int                @id @default(autoincrement())
-  batchId        Int
-  batch          TrainingBatch      @relation(fields: [batchId], references: [id])
-  coachId        Int
-  coach          Coach              @relation(fields: [coachId], references: [id])
-  registeredAt   DateTime           @default(now())
-  status         ParticipationStatus @default(PENDING)
-  notes          String?            @db.Text
-  isAttended     Boolean            @default(false)
-  
-  @@unique([batchId, coachId]) // ป้องกันการลงทะเบียนซ้ำ
-  @@index([batchId])
-  @@index([coachId])
-}
-
-// เพิ่ม Model สำหรับข้อมูลโค้ช
-model Coach {
-  id                Int             @id @default(autoincrement())
-  userId            Int             // เชื่อมโยงกับ User
-  user              User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  eventParticipations EventParticipant[]
-  batchParticipations BatchParticipant[]
-  teamName          String?         // ชื่อทีม
-  nickname          String?         // ชื่อเล่น
-  gender            Gender          // เพศ
-  age               Int             // อายุ
-  idCardNumber      String          @unique // เลขบัตรประชาชน
-  address           String          @db.Text // ที่อยู่ตามบัตรประชาชน
-  phoneNumber       String          // เบอร์โทรศัพท์
-  lineId            String?         // LINE ID
-  religion          Religion        // ศาสนา
-  hasMedicalCondition Boolean       @default(false) // มีโรคประจำตัวหรือไม่
-  medicalCondition  String?         @db.Text // รายละเอียดโรคประจำตัว
-  foodPreference    FoodPreference  @default(GENERAL) // ประเภทอาหาร
-  
-  // สถานะและประสบการณ์การทำงาน
-  coachStatus       CoachStatus     // สถานะการทำงาน
-  coachExperience   Int             // ประสบการณ์การเป็นโค้ช (ปี)
-  participationCount Int            // จำนวนครั้งที่เข้าร่วมการแข่งขัน
-  
-  // ข้อมูลการเข้าพักและเสื้อ
-  accommodation     Boolean         @default(true) // ต้องการเข้าพักหรือไม่
-  shirtSize         ShirtSize       // ไซส์เสื้อ
-  expectations      String?         @db.Text // ความคาดหวัง
-  
-  // เชื่อมโยงกับตำแหน่ง
-  locationId        Int?
-  location          Location?       @relation(fields: [locationId], references: [id])
-  
-  // เชื่อมโยงกับการอบรม
-  trainings         CoachTraining[]
-  
-  // สถานะการอนุมัติและการเข้าร่วม
-  isApproved        Boolean         @default(false) // สถานะการอนุมัติ
-  registrationCompleted Boolean     @default(false) // สถานะการลงทะเบียนเสร็จสมบูรณ์
-  
-  createdAt         DateTime        @default(now())
-  updatedAt         DateTime        @updatedAt
-
-  @@index([userId])
-  @@index([teamName])
-  @@index([locationId])
-}
-
-// เพิ่ม Model สำหรับหลักสูตรการอบรม
-model TrainingCourse {
-  id               Int             @id @default(autoincrement())
-  name             String          @unique // ชื่อหลักสูตร
-  description      String?         @db.Text // รายละเอียดหลักสูตร
-  
-  // เชื่อมโยงกับการอบรมของโค้ช
-  coachTrainings   CoachTraining[]
-  
-  createdAt        DateTime        @default(now())
-  updatedAt        DateTime        @updatedAt
-}
-
-// เพิ่ม Model สำหรับเก็บข้อมูลการอบรมของโค้ช
-model CoachTraining {
-  id               Int             @id @default(autoincrement())
-  coachId          Int
-  coach            Coach           @relation(fields: [coachId], references: [id], onDelete: Cascade)
-  
-  courseId         Int
-  course           TrainingCourse  @relation(fields: [courseId], references: [id])
-  
-  certificateImg   String?         // path ของรูปใบรับรอง (ถ้ามี)
-  trainingYear     Int?            // ปีที่ได้รับการอบรม
-  notes            String?         @db.Text // หมายเหตุเพิ่มเติม
-  
-  createdAt        DateTime        @default(now())
-  updatedAt        DateTime        @updatedAt
-  
-  @@unique([coachId, courseId]) // ป้องกันการซ้ำซ้อนของข้อมูล
-  @@index([coachId])
-  @@index([courseId])
-}
-
-// เพิ่ม Model สำหรับเก็บข้อมูลการจัดงานอบรม
-model TrainingEvent {
-  id               Int             @id @default(autoincrement())
-  title            String          // ชื่องานอบรม
-  description      String          @db.Text // รายละเอียดงาน
-  startDate        DateTime        // วันที่เริ่มต้น
-  endDate          DateTime        // วันที่สิ้นสุด
-  location         String          // สถานที่จัดงาน
-  maxParticipants  Int             // จำนวนผู้เข้าร่วมสูงสุด
-  registrationEndDate DateTime     // วันปิดรับสมัคร
-  isActive         Boolean         @default(true) // สถานะการเปิดรับสมัคร
-  
-  // เชื่อมโยงกับผู้เข้าร่วม
-  participants     EventParticipant[]
-  
-  createdAt        DateTime        @default(now())
-  updatedAt        DateTime        @updatedAt
-}
-
-// เพิ่ม Model สำหรับเก็บข้อมูลผู้เข้าร่วมงานอบรม
-model EventParticipant {
-  id               Int             @id @default(autoincrement())
-  eventId          Int
-  event            TrainingEvent   @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  
-  coachId          Int
-  coach            Coach           @relation(fields: [coachId], references: [id], onDelete: Cascade)
-  
-  registrationDate DateTime        @default(now()) // วันที่ลงทะเบียน
-  isAttended       Boolean         @default(false) // สถานะการเข้าร่วม
-  notes            String?         @db.Text // หมายเหตุ
-  
-  @@unique([eventId, coachId]) // ป้องกันการลงทะเบียนซ้ำ
-  @@index([eventId])
-  @@index([coachId])
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELED
 }

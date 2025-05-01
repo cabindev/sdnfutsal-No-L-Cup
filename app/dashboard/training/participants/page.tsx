@@ -1,4 +1,3 @@
-// app/dashboard/training/participants/page.tsx
 import { getServerSession } from "next-auth/next";
 import authOptions from "@/app/lib/configs/auth/authOptions";
 import { redirect } from "next/navigation";
@@ -16,7 +15,7 @@ import {
   UserCheck,
   Calendar
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/app/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card";
 import { Avatar, AvatarFallback } from "@/app/components/ui/avatar";
 import { Badge } from "@/app/components/ui/badge";
 import { Input } from "@/app/components/ui/input";
@@ -30,7 +29,7 @@ import { BatchSelector } from "./components/BatchSelector";
 export default async function ParticipantsPage({ 
   searchParams 
 }: { 
-  searchParams: Promise<{ filter?: string; search?: string; batch?: string; }> 
+  searchParams: Promise<{ filter?: string; search?: string; batch?: string; }>;
 }) {
   const session = await getServerSession(authOptions);
   
@@ -38,10 +37,11 @@ export default async function ParticipantsPage({
     redirect("/auth/signin?callbackUrl=/dashboard/training/participants");
   }
   
-  const resolvedParams = await searchParams;
-  const filter = resolvedParams.filter || 'all';
-  const search = resolvedParams.search || '';
-  const batchId = resolvedParams.batch ? parseInt(resolvedParams.batch) : undefined;
+  // ต้อง await searchParams ก่อนที่จะเข้าถึงค่าภายใน
+  const resolvedSearchParams = await searchParams;
+  const filter = resolvedSearchParams.filter || 'all';
+  const search = resolvedSearchParams.search || '';
+  const batchId = resolvedSearchParams.batch ? parseInt(resolvedSearchParams.batch) : undefined;
   
   // สร้างเงื่อนไขการค้นหา
   let where: any = {};

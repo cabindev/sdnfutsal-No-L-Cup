@@ -88,7 +88,7 @@ const Navbar = () => {
     },
     { 
       name: "โค้ช", 
-      href: "/#coaches", 
+      href: "/coaches", 
       icon: <Trophy size={20} />
     },
     { 
@@ -215,7 +215,7 @@ const Navbar = () => {
               className="flex items-center gap-2 text-white bg-white/5 px-3 py-1.5 rounded-full"
             >
               <Phone size={16} className="text-futsal-gold" />
-              <span className="font-medium text-sm">062-123-4567</span>
+              <span className="font-medium text-sm">Big : 095-914-1297</span>
             </motion.div>
 
             {/* Authenticated User Profile */}

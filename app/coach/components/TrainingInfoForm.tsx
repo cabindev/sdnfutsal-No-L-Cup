@@ -8,20 +8,15 @@ import { Label } from '@/app/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/app/components/ui/select';
 import { Checkbox } from '@/app/components/ui/checkbox';
 import { Textarea } from '@/app/components/ui/textarea';
-import { Coach } from '@prisma/client';
+import { Coach } from '../types/coach'; 
 import { getActiveTrainingBatches, TrainingBatchWithCount } from '../actions/training-batch/get-active';
 import { Alert, AlertDescription, AlertTitle } from '@/app/components/ui/alert';
 import { CalendarDays, MapPin, Users, X } from 'lucide-react';
 import { Badge } from '@/app/components/ui/badge';
 
-// เพิ่ม type ที่จำเป็นสำหรับ component นี้
-interface ExtendedCoach extends Partial<Coach> {
-  selectedBatchIds?: number[];
-}
-
 interface TrainingInfoFormProps {
-  formData: ExtendedCoach;
-  onUpdateFormData: (data: ExtendedCoach) => void;
+  formData: Partial<Coach>;
+  onUpdateFormData: (data: Partial<Coach>) => void;
   onNext: () => void;
   onPrevious: () => void;
   isLastStep?: boolean;
@@ -41,27 +36,26 @@ export default function TrainingInfoForm({
   const [localErrors, setLocalErrors] = useState<Record<string, string>>({});
   const [accommodation, setAccommodation] = useState(() => formData.accommodation ?? true);
   const [trainingBatches, setTrainingBatches] = useState<TrainingBatchWithCount[]>([]);
-  const [selectedBatchIds, setSelectedBatchIds] = useState<number[]>(() => 
-    Array.isArray(formData.selectedBatchIds) ? [...formData.selectedBatchIds] : []
+  
+  // เปลี่ยนจาก array เป็น number เดียว
+  const [selectedBatchId, setSelectedBatchId] = useState<number | null>(
+    Array.isArray(formData.selectedBatchIds) && formData.selectedBatchIds.length > 0 
+      ? formData.selectedBatchIds[0] 
+      : null
   );
+  
   const [isLoadingBatches, setIsLoadingBatches] = useState(true);
   const [lastUpdatedFormData, setLastUpdatedFormData] = useState({
-    selectedBatchIds: JSON.stringify(selectedBatchIds),
+    selectedBatchId: selectedBatchId,
     accommodation: accommodation
   });
   
-  // ฟังก์ชันเลือก/ยกเลิกการเลือกรุ่น
-  const handleToggleBatch = useCallback((batchId: number) => {
-    setSelectedBatchIds(prevIds => {
-      if (prevIds.includes(batchId)) {
-        return prevIds.filter(id => id !== batchId);
-      } else {
-        return [...prevIds, batchId];
-      }
-    });
+  // เปลี่ยนฟังก์ชันเลือกรุ่นให้เลือกได้แค่รุ่นเดียว
+  const handleSelectBatch = useCallback((batchId: number) => {
+    setSelectedBatchId(prevId => prevId === batchId ? null : batchId);
   }, []);
   
-  // โหลดข้อมูลรุ่นการอบรม - ทำงานเพียงครั้งเดียวเมื่อ component mount
+  // โหลดข้อมูลรุ่นการอบรม
   useEffect(() => {
     const loadTrainingBatches = async () => {
       try {
@@ -81,27 +75,26 @@ export default function TrainingInfoForm({
     loadTrainingBatches();
   }, []);
   
-  // อัพเดท formData เมื่อค่าสำคัญเปลี่ยนแปลง โดยป้องกันการเกิดลูปไม่รู้จบ
+  // อัพเดท formData เมื่อค่าสำคัญเปลี่ยนแปลง
   useEffect(() => {
-    const currentSelectedBatchIdsStr = JSON.stringify(selectedBatchIds);
-    
     // ตรวจสอบว่ามีการเปลี่ยนแปลงจริงๆ หรือไม่
-    if (currentSelectedBatchIdsStr !== lastUpdatedFormData.selectedBatchIds || 
+    if (selectedBatchId !== lastUpdatedFormData.selectedBatchId || 
         accommodation !== lastUpdatedFormData.accommodation) {
       
       // อัพเดทค่าที่ส่งล่าสุด
       setLastUpdatedFormData({
-        selectedBatchIds: currentSelectedBatchIdsStr,
+        selectedBatchId,
         accommodation
       });
       
       // ส่งค่าไปยัง parent component
+      // แปลงรุ่นที่เลือกเป็น array เพื่อรักษาโครงสร้างข้อมูลเดิม
       onUpdateFormData({
-        selectedBatchIds,
+        selectedBatchIds: selectedBatchId ? [selectedBatchId] : [],
         accommodation
       });
     }
-  }, [selectedBatchIds, accommodation, onUpdateFormData, lastUpdatedFormData]);
+  }, [selectedBatchId, accommodation, onUpdateFormData, lastUpdatedFormData]);
   
   // ฟังก์ชันตรวจสอบความถูกต้อง
   const validateForm = useCallback(() => {
@@ -125,13 +118,13 @@ export default function TrainingInfoForm({
     }
     
     // ตรวจสอบการเลือกรุ่นอบรม
-    if (selectedBatchIds.length === 0 && trainingBatches.length > 0) {
-      newErrors.selectedBatchIds = 'กรุณาเลือกอย่างน้อยหนึ่งรุ่นที่ต้องการเข้าอบรม';
+    if (!selectedBatchId && trainingBatches.length > 0) {
+      newErrors.selectedBatchIds = 'กรุณาเลือกรุ่นที่ต้องการเข้าอบรม';
     }
     
     setLocalErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  }, [formData.coachExperience, formData.participationCount, formData.shirtSize, selectedBatchIds, trainingBatches.length]);
+  }, [formData.coachExperience, formData.participationCount, formData.shirtSize, selectedBatchId, trainingBatches.length]);
 
   // ฟังก์ชัน Submit
   const handleSubmit = async (e: React.FormEvent) => {
@@ -154,7 +147,7 @@ export default function TrainingInfoForm({
   }, [onUpdateFormData]);
   
   // ฟังก์ชันจัดรูปแบบวันที่
-  const formatDateRange = (start: Date, end: Date) => {
+  const formatDateRange = (start: Date | string, end: Date | string) => {
     const startDate = new Date(start);
     const endDate = new Date(end);
     
@@ -173,7 +166,7 @@ export default function TrainingInfoForm({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="coachExperience">
-            ประสบการณ์การเป็นโค้ช (ปี) <span className="text-red-500">*</span>
+            ประสบการณ์การเป็นโค้ชที่ผ่านมา (ปี) <span className="text-red-500">*</span>
           </Label>
           <Input
             id="coachExperience"
@@ -193,7 +186,7 @@ export default function TrainingInfoForm({
 
        <div className="space-y-2">
          <Label htmlFor="participationCount">
-           จำนวนครั้งที่เข้าร่วมการแข่งขัน{" "}
+           จำนวนครั้งที่เข้าร่วมการแข่งขัน (SDN Futsal No L CUP) {" "}
            <span className="text-red-500">*</span>
          </Label>
          <Input
@@ -240,15 +233,15 @@ export default function TrainingInfoForm({
      </div>
      
      {/* แสดงรุ่นที่เลือกแล้ว */}
-     {selectedBatchIds.length > 0 && (
+     {selectedBatchId && (
        <div className="bg-orange-50 rounded-lg border border-orange-100 p-4">
-         <h3 className="font-medium text-orange-800 mb-2">รุ่นที่คุณเลือก ({selectedBatchIds.length})</h3>
+         <h3 className="font-medium text-orange-800 mb-2">รุ่นที่คุณเลือก</h3>
          <div className="flex flex-wrap gap-2">
-           {selectedBatchIds.map(id => {
-             const batch = trainingBatches.find(b => b.id === id);
+           {(() => {
+             const batch = trainingBatches.find(b => b.id === selectedBatchId);
              return batch ? (
                <Badge 
-                 key={id} 
+                 key={batch.id} 
                  className="bg-orange-100 text-orange-800 hover:bg-orange-200 pl-2 pr-1 py-1"
                >
                  <span>รุ่นที่ {batch.batchNumber}/{batch.year}</span>
@@ -257,7 +250,7 @@ export default function TrainingInfoForm({
                    size="sm"
                    onClick={(e) => {
                      e.preventDefault();
-                     handleToggleBatch(id);
+                     setSelectedBatchId(null);
                    }}
                    className="h-5 w-5 p-0 ml-1 text-orange-800 hover:text-orange-900 rounded-full"
                  >
@@ -265,7 +258,7 @@ export default function TrainingInfoForm({
                  </Button>
                </Badge>
              ) : null;
-           })}
+           })()}
          </div>
        </div>
      )}
@@ -273,7 +266,7 @@ export default function TrainingInfoForm({
      {/* รุ่นการอบรม */}
      <div className="space-y-2">
        <Label>
-         รุ่นที่ต้องการเข้าอบรม <span className="text-red-500">*</span> <span className="text-gray-500 text-sm">(เลือกได้มากกว่า 1 รุ่น)</span>
+         รุ่นที่ต้องการเข้าอบรม <span className="text-red-500">*</span>
        </Label>
        {localErrors.selectedBatchIds && (
          <p className="text-sm text-red-500">{localErrors.selectedBatchIds}</p>
@@ -285,23 +278,25 @@ export default function TrainingInfoForm({
              <div 
                key={batch.id} 
                className={`border rounded-lg p-4 transition-colors ${
-                 selectedBatchIds.includes(batch.id) 
+                 selectedBatchId === batch.id 
                    ? 'border-orange-300 bg-orange-50' 
                    : 'border-gray-200 hover:border-orange-200'
                }`}
              >
                <div className="flex items-start">
-                 <Checkbox 
+                 {/* เปลี่ยนจาก Checkbox เป็น Radio เพื่อเลือกได้เพียงรุ่นเดียว */}
+                 <input 
+                   type="radio"
                    id={`batch-${batch.id}`}
-                   checked={selectedBatchIds.includes(batch.id)}
-                   onCheckedChange={() => handleToggleBatch(batch.id)}
+                   checked={selectedBatchId === batch.id}
+                   onChange={() => handleSelectBatch(batch.id)}
                    className="mt-1"
                  />
                  <div className="ml-3 flex-1">
                    <Label 
                      htmlFor={`batch-${batch.id}`} 
                      className={`font-medium text-lg cursor-pointer ${
-                       selectedBatchIds.includes(batch.id) ? 'text-orange-800' : 'text-gray-800'
+                       selectedBatchId === batch.id ? 'text-orange-800' : 'text-gray-800'
                      }`}
                    >
                      รุ่นที่ {batch.batchNumber}/{batch.year}
@@ -329,11 +324,11 @@ export default function TrainingInfoForm({
                    {/* สถานะการลงทะเบียน */}
                    <div className="flex justify-end mt-2">
                      <Badge className={
-                       selectedBatchIds.includes(batch.id)
+                       selectedBatchId === batch.id
                          ? "bg-green-100 text-green-800 hover:bg-green-200"
                          : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                      }>
-                       {selectedBatchIds.includes(batch.id) ? 'เลือกแล้ว' : 'ยังไม่ได้เลือก'}
+                       {selectedBatchId === batch.id ? 'เลือกแล้ว' : 'ยังไม่ได้เลือก'}
                      </Badge>
                    </div>
                  </div>

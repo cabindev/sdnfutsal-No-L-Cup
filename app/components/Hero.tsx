@@ -14,7 +14,7 @@ const Hero = () => {
     <div className="relative w-full h-screen overflow-hidden bg-[#2c2f72]">
       {/* เอฟเฟกต์ gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-b from-[#2c2f72]/30 to-[#2c2f72]/70 z-[1]" />
-      
+
       {/* ข้อความขนาดใหญ่ด้านหลังพร้อมเอฟเฟกต์เรืองแสงนีออน */}
       <motion.div
         initial={{ opacity: 0 }}
@@ -22,20 +22,20 @@ const Hero = () => {
         transition={{ duration: 1.5, delay: 0.5 }}
         className="absolute inset-0 flex items-center justify-center z-[2]"
       >
-        <motion.h1 
+        <motion.h1
           className="text-[15vw] font-extrabold text-white/10 select-none tracking-tighter"
           initial={{ opacity: 0.2 }}
-          animate={{ 
+          animate={{
             opacity: [0.2, 0.4, 0.2],
             textShadow: [
-              '0 0 5px rgba(255, 255, 255, 0.5), 0 0 20px rgba(50, 150, 255, 0.5), 0 0 40px rgba(50, 100, 255, 0.8)',
-              '0 0 10px rgba(255, 255, 255, 0.7), 0 0 30px rgba(50, 150, 255, 0.7), 0 0 60px rgba(50, 100, 255, 1)',
-              '0 0 5px rgba(255, 255, 255, 0.5), 0 0 20px rgba(50, 150, 255, 0.5), 0 0 40px rgba(50, 100, 255, 0.8)'
-            ]
+              "0 0 5px rgba(255, 255, 255, 0.5), 0 0 20px rgba(50, 150, 255, 0.5), 0 0 40px rgba(50, 100, 255, 0.8)",
+              "0 0 10px rgba(255, 255, 255, 0.7), 0 0 30px rgba(50, 150, 255, 0.7), 0 0 60px rgba(50, 100, 255, 1)",
+              "0 0 5px rgba(255, 255, 255, 0.5), 0 0 20px rgba(50, 150, 255, 0.5), 0 0 40px rgba(50, 100, 255, 0.8)",
+            ],
           }}
           transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-          style={{ 
-            WebkitTextStroke: '1px rgba(255, 255, 255, 0.2)',
+          style={{
+            WebkitTextStroke: "1px rgba(255, 255, 255, 0.2)",
           }}
         >
           THE COACH
@@ -66,13 +66,13 @@ const Hero = () => {
               className="object-contain w-full h-full relative z-10"
               priority
               sizes="(max-width: 768px) 90vw, (max-width: 1200px) 85vw, 1400px"
-              style={{ 
-                filter: 'drop-shadow(0 0 15px rgba(0, 0, 0, 0.5))'
+              style={{
+                filter: "drop-shadow(0 0 15px rgba(0, 0, 0, 0.5))",
               }}
             />
-            
+
             {/* โลโก้ SDN FUTSAL แทนข้อความ */}
-            <motion.div 
+            <motion.div
               className="absolute bottom-[10%] left-0 right-0 flex justify-center items-center z-20"
               initial={{ y: 50, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
@@ -89,19 +89,50 @@ const Hero = () => {
                   width={300}
                   height={150}
                   className="w-full h-auto object-contain"
-                  style={{ 
-                    filter: 'drop-shadow(0 0 10px rgba(238, 105, 37, 0.7))'
+                  style={{
+                    filter: "drop-shadow(0 0 10px rgba(238, 105, 37, 0.7))",
                   }}
                 />
               </motion.div>
             </motion.div>
           </motion.div>
         </motion.div>
+
+        <motion.div
+          className="absolute bottom-[5%] left-0 right-0 flex justify-center items-center z-20"
+          initial={{ y: 50, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 1, delay: 2 }}
+        >
+          <motion.a
+            href="#registration"
+            className="bg-futsal-orange hover:bg-futsal-orange-dark text-white font-bold py-3 px-8 rounded-full 
+               text-lg shadow-lg hover:shadow-xl transform transition-transform hover:scale-105 
+               flex items-center gap-2"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <span>สมัครอบรมโค้ชฟุตซอล</span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v3.586L7.707 9.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 10.586V7z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </motion.a>
+        </motion.div>
+       
       </div>
 
       {/* เอฟเฟกต์พาร์ติเคิลด้านหลัง */}
       {isLoaded && <Particles />}
-      
+
       {/* Vignette effect */}
       <div className="absolute inset-0 pointer-events-none z-[4] bg-radial-vignette opacity-60" />
     </div>
@@ -146,6 +177,7 @@ const Particles = () => {
             delay: particle.id * 0.2 % 2
           }}
         />
+        
       ))}
     </div>
   );

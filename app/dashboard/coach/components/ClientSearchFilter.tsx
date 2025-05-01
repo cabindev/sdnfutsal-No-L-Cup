@@ -1,59 +1,42 @@
 // app/dashboard/coach/components/ClientSearchFilter.tsx
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { Filter, Search } from 'lucide-react';
-import { Button } from '@/app/components/ui/button';
-import { getAllTrainingBatches } from '@/app/coach/actions/coach/get';
+import { useRouter } from "next/navigation";
+import { useCallback, useState } from "react";
+import { Button } from "@/app/components/ui/button";
+import { Input } from "@/app/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/app/components/ui/select";
+import { Search, Filter, X } from "lucide-react";
 
 interface ClientSearchFilterProps {
-  defaultStatus?: string;
   defaultSearch?: string;
-  defaultBatch?: string; // เพิ่ม prop defaultBatch
+  defaultStatus?: string;
+  defaultBatch?: string;
+  batches?: Array<{
+    id: number;
+    batchNumber: number;
+    year: number;
+    isActive: boolean;
+  }>;
 }
 
-export default function ClientSearchFilter({ 
-  defaultStatus = 'all', 
+export default function ClientSearchFilter({
   defaultSearch = '',
-  defaultBatch = 'all' // เพิ่มค่าเริ่มต้น
+  defaultStatus = 'all',
+  defaultBatch = 'all',
+  batches = []
 }: ClientSearchFilterProps) {
   const router = useRouter();
-  const [searchQuery, setSearchQuery] = useState(defaultSearch);
+  const [search, setSearch] = useState(defaultSearch);
   const [status, setStatus] = useState(defaultStatus);
-  const [batch, setBatch] = useState(defaultBatch); // เพิ่ม state สำหรับเก็บค่า batch
-  const [batches, setBatches] = useState<any[]>([]); // เพิ่ม state สำหรับเก็บรายการรุ่น
-  const [isLoading, setIsLoading] = useState(false);
+  const [batch, setBatch] = useState(defaultBatch);
   
-  // โหลดข้อมูลรุ่นอบรมเมื่อ component ถูกโหลด
-  useEffect(() => {
-    const fetchBatches = async () => {
-      try {
-        setIsLoading(true);
-        // ถ้ามี function getAllTrainingBatches แล้ว ให้ใช้อันนี้
-        const result = await getAllTrainingBatches();
-        
-        if (result.success && result.data) {
-          setBatches(result.data);
-        }
-      } catch (error) {
-        console.error('Error fetching batches:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    fetchBatches();
-  }, []);
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // สร้าง query params
+  // อัพเดท query params และนำทางไปยัง URL ใหม่
+  const updateSearch = useCallback(() => {
     const params = new URLSearchParams();
     
-    if (searchQuery) {
-      params.set('q', searchQuery);
+    if (search) {
+      params.set('q', search);
     }
     
     if (status !== 'all') {
@@ -64,66 +47,120 @@ export default function ClientSearchFilter({
       params.set('batch', batch);
     }
     
-    // นำทางไปยัง URL ใหม่
-    router.push(`/dashboard/coach${params.toString() ? `?${params.toString()}` : ''}`);
+    // รีเซ็ตหน้าเป็นหน้าแรกเมื่อมีการค้นหาใหม่
+    params.set('page', '1');
+    
+    const queryString = params.toString();
+    router.push(`/dashboard/coach${queryString ? `?${queryString}` : ''}`);
+  }, [search, status, batch, router]);
+  
+  // reset การค้นหา
+  const resetSearch = () => {
+    setSearch('');
+    setStatus('all');
+    setBatch('all');
+    router.push('/dashboard/coach');
   };
+  
+  // มีการใช้ตัวกรองหรือไม่
+  const hasFilters = search || status !== 'all' || batch !== 'all';
 
   return (
-    <div className="bg-white p-4 rounded-lg shadow-sm mb-6">
-      <form onSubmit={handleSearch}>
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          <div className="md:col-span-2">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="ค้นหาตามชื่อ, ชื่อเล่น, ทีม หรือเบอร์โทร"
-                className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-              />
-            </div>
-          </div>
-          
-          <div className="grid grid-cols-2 gap-2 md:grid-cols-1 lg:grid-cols-2">
-            <div className="flex items-center h-full">
-              <Filter className="text-gray-400 h-4 w-4 mr-2" />
-              <select
-                value={status}
-                onChange={(e) => setStatus(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-              >
-                <option value="all">สถานะทั้งหมด</option>
-                <option value="pending">รอการอนุมัติ</option>
-                <option value="approved">อนุมัติแล้ว</option>
-              </select>
-            </div>
-            
-            <div className="flex items-center h-full">
-              <Filter className="text-gray-400 h-4 w-4 mr-2" />
-              <select
-                value={batch}
-                onChange={(e) => setBatch(e.target.value)}
-                disabled={isLoading}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-              >
-                <option value="all">ทุกรุ่น</option>
-                {batches.map((b) => (
-                  <option key={b.id} value={b.id}>
-                    รุ่นที่ {b.batchNumber}/{b.year}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-          
-          <div>
-            <Button type="submit" className="w-full bg-futsal-orange hover:bg-futsal-orange/90">
-              ค้นหา
-            </Button>
-          </div>
+    <div className="space-y-4">
+      <div className="flex flex-col md:flex-row gap-3">
+        {/* ช่องค้นหา */}
+        <div className="flex-1 relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+          <Input
+            placeholder="ค้นหาโค้ช..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-9"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                updateSearch();
+              }
+            }}
+          />
         </div>
-      </form>
+        
+        {/* ตัวกรองสถานะ */}
+        <div className="w-full md:w-60">
+          <Select
+            value={status}
+            onValueChange={(value) => {
+              setStatus(value);
+              // อัพเดทการค้นหาทันทีเมื่อเปลี่ยนสถานะ
+              setTimeout(() => updateSearch(), 0);
+            }}
+          >
+            <SelectTrigger className="w-full">
+              <div className="flex items-center">
+                <Filter className="h-4 w-4 mr-2 text-gray-500" />
+                <span>สถานะ:</span>
+                <SelectValue placeholder="ทั้งหมด" />
+              </div>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">ทั้งหมด</SelectItem>
+              <SelectItem value="approved">อนุมัติแล้ว</SelectItem>
+              <SelectItem value="pending">รอการอนุมัติ</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        
+        {/* ตัวกรองรุ่นอบรม */}
+        <div className="w-full md:w-72">
+          <Select
+            value={batch}
+            onValueChange={(value) => {
+              setBatch(value);
+              // อัพเดทการค้นหาทันทีเมื่อเปลี่ยนรุ่น
+              setTimeout(() => updateSearch(), 0);
+            }}
+          >
+            <SelectTrigger className="w-full">
+              <div className="flex items-center">
+                <Filter className="h-4 w-4 mr-2 text-gray-500" />
+                <span>รุ่นอบรม:</span>
+                <SelectValue placeholder="ทั้งหมด" />
+              </div>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">ทั้งหมด</SelectItem>
+              {batches.map((b) => (
+                <SelectItem key={b.id} value={b.id.toString()}>
+                  รุ่นที่ {b.batchNumber}/{b.year}
+                  {b.isActive && " (เปิดรับสมัคร)"}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        
+        {/* ปุ่มค้นหา */}
+        <div className="flex space-x-2">
+          <Button 
+            variant="default" 
+            onClick={updateSearch}
+            className="bg-futsal-navy hover:bg-futsal-navy/90"
+          >
+            <Search className="h-4 w-4 mr-2" />
+            ค้นหา
+          </Button>
+          
+          {hasFilters && (
+            <Button 
+              variant="outline" 
+              onClick={resetSearch}
+              className="border-gray-300"
+            >
+              <X className="h-4 w-4 mr-2" />
+              ล้าง
+            </Button>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

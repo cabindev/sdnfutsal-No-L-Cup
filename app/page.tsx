@@ -1,15 +1,15 @@
-// app/page.tsx
 "use client"
 
-import React, { useEffect } from "react";
+import { useState, useEffect, Suspense } from 'react';
 import FutsalNavbar from "./components/Futsal-Navbar";
 import Hero from "./components/Hero";
 import Gallery from "./components/Gallery";
 import TrainingInfo from "./components/TrainingInfo";
+import TrainingBatchRegistration from "./components/TrainingBatchRegistration";
 import Footer from "./components/Footer";
 import ScrollToTopButton from "./components/ScrollToTopButton";
 import PageTransition from "./components/PageTransition";
-
+import FloatingRegisterButton from "./components/FloatingRegisterButton";
 
 export default function Home() {
   // Smooth scroll effect for anchor links
@@ -27,11 +27,11 @@ export default function Home() {
         }
       }
     };
-
+    
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
       anchor.addEventListener('click', handleAnchorClick as EventListener);
     });
-
+    
     return () => {
       document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.removeEventListener('click', handleAnchorClick as EventListener);
@@ -45,14 +45,21 @@ export default function Home() {
 
         <main>
           <Hero />
+          
+          
           <div className="relative">
             {/* Decorative elements */}
             <div className="absolute top-0 left-0 w-60 h-60 bg-futsal-gold/5 rounded-full -translate-x-1/2 -translate-y-1/2 blur-3xl"></div>
             <div className="absolute bottom-40 right-0 w-80 h-80 bg-futsal-blue/5 rounded-full translate-x-1/2 blur-3xl"></div>
-            <TrainingInfo />
-            <Gallery />         
+            
+            <Suspense fallback={<div />}>
+              <TrainingBatchRegistration />
+            </Suspense>
+            {/* <TrainingInfo />
+            <Gallery /> */}
           </div>
         </main>
+        <FloatingRegisterButton />
         <Footer />
         <ScrollToTopButton />
       </div>

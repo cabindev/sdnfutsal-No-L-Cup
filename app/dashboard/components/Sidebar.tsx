@@ -62,12 +62,7 @@ export default function Sidebar({ user }: SidebarProps) {
       icon: LayoutDashboard,
       description: 'ภาพรวมระบบ'
     },
-    {
-      name: 'Home',
-      href: '/',
-      icon: Home,
-      description: 'กลับสู่หน้าหลัก'
-    },
+
     {
       name: 'Profile',
       href: '/dashboard/profile',
@@ -162,16 +157,20 @@ export default function Sidebar({ user }: SidebarProps) {
         {/* Sidebar header */}
         <div className="flex h-16 items-center justify-between border-b border-white/10 px-4">
           {!sidebarCollapsed ? (
-            <Link href="/dashboard" className="flex items-center">
-              <img
-                src="/img/sdnfutsal.png"
-                alt="SDN Futsal Logo"
-                className="h-9 w-auto"
-              />
-              <span className="ml-3 text-white font-semibold text-gradient-gold-orange">
-                Futsal NO L
-              </span>
-            </Link>
+            <div className="flex items-center">
+              <Link href="/dashboard">
+                <img
+                  src="/img/sdnfutsal.png"
+                  alt="SDN Futsal Logo"
+                  className="h-9 w-auto"
+                />
+              </Link>
+              <Link href="/" className="ml-3">
+                <span className="text-white font-semibold text-gradient-gold-orange">
+                  Futsal NO L
+                </span>
+              </Link>
+            </div>
           ) : (
             <Link href="/dashboard" className="mx-auto">
               <img
@@ -263,7 +262,8 @@ export default function Sidebar({ user }: SidebarProps) {
                 onClick={() => setIsCoachMenuOpen(!isCoachMenuOpen)}
                 className={cn(
                   "group flex items-center w-full p-3 rounded-lg transition-all duration-200",
-                  (pathname?.startsWith("/dashboard/coach") || pathname?.startsWith("/dashboard/training"))
+                  pathname?.startsWith("/dashboard/coach") ||
+                    pathname?.startsWith("/dashboard/training")
                     ? "bg-futsal-orange text-white shadow-futsal"
                     : "hover:bg-white/10 text-white/80 hover:text-white",
                   sidebarCollapsed && "justify-center"
@@ -298,7 +298,9 @@ export default function Sidebar({ user }: SidebarProps) {
               </button>
 
               {/* Coach submenu */}
-              {(isCoachMenuOpen || pathname?.startsWith("/dashboard/coach") || pathname?.startsWith("/dashboard/training")) &&
+              {(isCoachMenuOpen ||
+                pathname?.startsWith("/dashboard/coach") ||
+                pathname?.startsWith("/dashboard/training")) &&
                 !sidebarCollapsed && (
                   <div className="animate-fadeDown mt-1">
                     <ul className="bg-white/5 rounded-lg ml-2 mr-2 overflow-hidden backdrop-blur-sm">
@@ -307,7 +309,7 @@ export default function Sidebar({ user }: SidebarProps) {
                         if (subMenu.requireAdmin && !isAdmin) {
                           return null;
                         }
-                        
+
                         const Icon = subMenu.icon;
                         const isSubActive =
                           pathname === subMenu.href ||
@@ -346,7 +348,7 @@ export default function Sidebar({ user }: SidebarProps) {
                     if (subMenu.requireAdmin && !isAdmin) {
                       return null;
                     }
-                    
+
                     const Icon = subMenu.icon;
                     const isSubActive =
                       pathname === subMenu.href ||

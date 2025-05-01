@@ -14,7 +14,6 @@ import {
   BookOpen,
   GraduationCap,
   UserPlus,
-  UserCheck,
   Activity
 } from "lucide-react";
 import prisma from "@/app/lib/db";
@@ -22,8 +21,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/app/comp
 import { Badge } from "@/app/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/app/components/ui/avatar";
 
-
-export default async function CoachTrainingPage({
+export default async function TrainingPage({
   searchParams
 }: {
   searchParams: Promise<{ filter?: string; }>
@@ -31,7 +29,7 @@ export default async function CoachTrainingPage({
   const session = await getServerSession(authOptions);
   
   if (!session?.user) {
-    redirect("/auth/signin?callbackUrl=/dashboard/coach/training");
+    redirect("/auth/signin?callbackUrl=/dashboard/training");
   }
   
   const userId = session.user.id;
@@ -169,7 +167,7 @@ export default async function CoachTrainingPage({
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-futsal-navy">การอบรมโค้ชฟุตซอล</h1>
-          <p className="text-gray-600">รายการอบรมและการลงทะเบียนของโค้ช</p>
+          <p className="text-gray-600">รายการอบรมและการลงทะเบียนเข้าร่วม</p>
         </div>
         
         {isAdmin && (
@@ -233,11 +231,11 @@ export default async function CoachTrainingPage({
         </Card>
       </div>
       
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
           {/* ตัวกรอง */}
           <div className="flex flex-wrap gap-2 mb-4">
-            <Link href="/dashboard/coach/training">
+            <Link href="/dashboard/training">
               <Button 
                 variant={filter === 'all' ? 'default' : 'outline'}
                 size="sm"
@@ -246,7 +244,7 @@ export default async function CoachTrainingPage({
                 ทั้งหมด
               </Button>
             </Link>
-            <Link href="/dashboard/coach/training?filter=registered">
+            <Link href="/dashboard/training?filter=registered">
               <Button 
                 variant={filter === 'registered' ? 'default' : 'outline'}
                 size="sm"
@@ -255,7 +253,7 @@ export default async function CoachTrainingPage({
                 ที่ลงทะเบียนแล้ว
               </Button>
             </Link>
-            <Link href="/dashboard/coach/training?filter=upcoming">
+            <Link href="/dashboard/training?filter=upcoming">
               <Button 
                 variant={filter === 'upcoming' ? 'default' : 'outline'}
                 size="sm"
@@ -264,7 +262,7 @@ export default async function CoachTrainingPage({
                 กำลังจะมาถึง
               </Button>
             </Link>
-            <Link href="/dashboard/coach/training?filter=past">
+            <Link href="/dashboard/training?filter=past">
               <Button 
                 variant={filter === 'past' ? 'default' : 'outline'}
                 size="sm"
@@ -345,44 +343,7 @@ export default async function CoachTrainingPage({
                         </div>
                       </div>
                     </CardContent>
-                    
-                    <CardFooter className="bg-gray-50 px-4 py-3 border-t">
-                      {!coach ? (
-                        <div className="w-full text-center">
-                          <p className="text-sm text-gray-600 mb-2">คุณยังไม่ได้ลงทะเบียนเป็นโค้ช</p>
-                          <Button asChild className="w-full bg-futsal-blue">
-                            <Link href="/dashboard/coach/register">
-                              ลงทะเบียนเป็นโค้ช
-                            </Link>
-                          </Button>
-                        </div>
-                      ) : registrationStatus.status === 'NOT_REGISTERED' ? (
-                        <Button 
-                          asChild 
-                          className="w-full"
-                          disabled={!batch.isActive || batchEnded || isFull || registrationClosed}
-                        >
-                          <Link href={`/dashboard/coach/training/${batch.id}/register`}>
-                            {batchEnded ? 'การอบรมสิ้นสุดแล้ว' :
-                             registrationClosed ? 'ปิดรับสมัครแล้ว' :
-                             isFull ? 'จำนวนผู้เข้าร่วมเต็มแล้ว' : 
-                             !batch.isActive ? 'ปิดรับสมัครแล้ว' : 
-                             'ลงทะเบียนเข้าร่วม'}
-                          </Link>
-                        </Button>
-                      ) : (
-                        <div className="w-full">
-                          <Link href={`/dashboard/coach/training/${batch.id}`}>
-                            <Button 
-                              variant="outline" 
-                              className="w-full text-futsal-blue border-futsal-blue/30 hover:bg-futsal-blue/10"
-                            >
-                              ดูรายละเอียด
-                            </Button>
-                          </Link>
-                        </div>
-                      )}
-                    </CardFooter>
+
                   </Card>
                 );
               })}
@@ -390,8 +351,9 @@ export default async function CoachTrainingPage({
           )}
         </div>
         
-        {/* ผู้ลงทะเบียนล่าสุด */}
+        {/* ข้อมูลเพิ่มเติม - สไตล์เรียบง่ายขึ้น */}
         <div>
+          {/* ผู้ลงทะเบียนล่าสุด */}
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-lg font-medium flex items-center">
@@ -431,9 +393,6 @@ export default async function CoachTrainingPage({
                             registration.status === 'CANCELED' ? 'ยกเลิก' :
                             'รอการอนุมัติ'}
                           </Badge>
-                          <span className="text-xs text-gray-500 ml-2">
-                            {formatDate(registration.registeredAt)} {formatTime(registration.registeredAt)}
-                          </span>
                         </div>
                       </div>
                     </div>
@@ -454,7 +413,7 @@ export default async function CoachTrainingPage({
             </CardFooter>
           </Card>
           
-          {/* แสดงรุ่นที่กำลังจะปิดรับสมัคร */}
+          {/* แสดงรุ่นที่กำลังจะปิดรับสมัคร - แบบย่อลง */}
           <Card className="mt-6">
             <CardHeader className="pb-3">
               <CardTitle className="text-lg font-medium flex items-center">
@@ -480,7 +439,7 @@ export default async function CoachTrainingPage({
                     .map(batch => (
                       <Link 
                         key={batch.id}
-                        href={`/dashboard/coach/training/${batch.id}`}
+                        href={`/dashboard/training/${batch.id}`}
                         className="block p-3 border border-gray-100 rounded-lg hover:border-amber-300 hover:bg-amber-50/30"
                       >
                         <div className="font-medium text-gray-900">
@@ -489,10 +448,6 @@ export default async function CoachTrainingPage({
                         <div className="flex items-center text-xs text-gray-500 mt-1">
                           <CalendarDays className="h-3 w-3 mr-1 text-amber-500" />
                           ปิดรับสมัคร {formatDate(batch.registrationEndDate)}
-                        </div>
-                        <div className="flex items-center text-xs text-gray-500 mt-1">
-                          <Users className="h-3 w-3 mr-1 text-amber-500" />
-                          {batch._count.participants} / {batch.maxParticipants} คน
                         </div>
                       </Link>
                     ))
