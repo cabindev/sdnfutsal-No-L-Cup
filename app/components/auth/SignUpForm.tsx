@@ -1,4 +1,4 @@
-//app/components/auth/SignUpForm.tsx
+// app/components/auth/SignUpForm.tsx
 'use client'
 
 import { useState, FormEvent } from "react"
@@ -44,7 +44,8 @@ export default function SignUpForm() {
          return;
        }
        
-       const img = new Image();
+       // แก้ไขการสร้าง Image element
+       const img = document.createElement('img');
        img.src = event.target.result as string;
        
        // กำหนดฟังก์ชัน onload ให้กับ Image

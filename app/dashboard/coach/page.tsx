@@ -1,525 +1,309 @@
-import { Metadata } from "next";
+// app/dashboard/coach/page.tsx
+import { getServerSession } from "next-auth/next";
+import authOptions from "@/app/lib/configs/auth/authOptions";
+import { redirect } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
-import { 
-  Search, 
-  Filter, 
-  Calendar, 
-  MapPin, 
-  ChevronRight,
-  Medal,
-  Users,
-  TrendingUp,
-  Sparkles
-} from "lucide-react";
-import { Button } from "@/app/components/ui/button";
-import { Input } from "@/app/components/ui/input";
-import { Avatar, AvatarFallback } from "@/app/components/ui/avatar";
-import { Badge } from "@/app/components/ui/badge";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/app/components/ui/select";
 import prisma from "@/app/lib/db";
+import { Button } from "@/app/components/ui/button";
+import { Plus, Download, Users, Clock, CheckCircle, XCircle, Filter, Search } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/app/components/ui/card";
+import Image from "next/image";
+import ClientSearchFilter from "./components/ClientSearchFilter";
+import { Badge } from "@/app/components/ui/badge";
+import CoachCard from "./components/CoachCard";
+import CoachTable from "./components/CoachTable";
+import EmptyState from "./components/EmptyState";
+import Pagination from "@/app/components/ui/pagination";
+import ExportCSVDropdown from "./components/ExportCSVDropdown";
+import RefreshButton from './components/RefreshButton';
 
-export const metadata: Metadata = {
-  title: "รายชื่อโค้ชฟุตซอล | SDN FUTSAL",
-  description: "รายชื่อโค้ชฟุตซอลที่ผ่านการอบรมอย่างเป็นทางการจากสมาคมฟุตซอลแห่งประเทศไทย",
-};
+// ประกาศ type สำหรับ searchParams เพื่อให้เข้ากับ Next.js 15
+interface SearchParamsType {
+  q?: string;
+  status?: string;
+  batch?: string;
+  page?: string;
+}
 
-export default async function CoachesPage({
-  searchParams
-}: {
-  searchParams: Promise<{ year?: string; batch?: string; search?: string; province?: string; }>
+export default async function CoachListPage({ 
+  searchParams 
+}: { 
+  searchParams: Promise<SearchParamsType>  // เปลี่ยนเป็น Promise
 }) {
-  // ดึงข้อมูลจาก URL params
-  const resolvedParams = await searchParams;
-  const year = resolvedParams.year ? parseInt(resolvedParams.year) : undefined;
-  const batchNumber = resolvedParams.batch ? parseInt(resolvedParams.batch) : undefined;
-  const search = resolvedParams.search || '';
-  const province = resolvedParams.province || '';
+  // ตรวจสอบ session ของผู้ใช้
+  const session = await getServerSession(authOptions);
   
-  // ดึงข้อมูลปีที่มีการจัดอบรม
-  const years = await prisma.trainingBatch.findMany({
-    select: { year: true },
-    distinct: ['year'],
-    orderBy: { year: 'desc' }
-  });
-  
-  const uniqueYears = years.map(item => item.year);
-  const selectedYear = year || (uniqueYears.length > 0 ? uniqueYears[0] : new Date().getFullYear());
-  
-  // ดึงข้อมูลรุ่นตามปีที่เลือก
-  const batches = await prisma.trainingBatch.findMany({
-    where: { year: selectedYear },
-    orderBy: { batchNumber: 'desc' }
-  });
-  
-  // ดึงข้อมูลจังหวัดทั้งหมดที่มีโค้ช
-  const provinces = await prisma.location.findMany({
-    select: { province: true },
-    distinct: ['province'],
-    orderBy: { province: 'asc' }
-  });
-  
-  // สร้างเงื่อนไขในการค้นหา
-  let where: any = {
-    batchParticipations: {
-      some: {
-        status: 'APPROVED',
-        batch: { year: selectedYear }
-      }
-    }
-  };
-  
-  if (batchNumber) {
-    where.batchParticipations.some.batch.batchNumber = batchNumber;
+  if (!session?.user) {
+    redirect("/auth/signin?callbackUrl=/dashboard/coach");
   }
+  
+  // ใช้ await กับ searchParams ตามข้อกำหนดของ Next.js 15
+  const resolvedParams = await searchParams;
+  
+  const isAdmin = session.user.role === 'ADMIN';
+  const page = Number(resolvedParams.page) || 1;
+  const pageSize = 10;
+  const search = resolvedParams.q || '';
+  const status = resolvedParams.status || 'all';
+  const batchId = resolvedParams.batch || 'all';
+  
+  // ค้นหาโค้ชตามเงื่อนไข
+  const where: Record<string, any> = {}; // ใช้ Record<string, any> แทน any เพื่อความปลอดภัยมากขึ้น
   
   if (search) {
     where.OR = [
       { user: { firstName: { contains: search } } },
       { user: { lastName: { contains: search } } },
-      { teamName: { contains: search } }
+      { nickname: { contains: search } },
+      { teamName: { contains: search } },
+      { phoneNumber: { contains: search } },
     ];
   }
   
-  if (province && province !== 'all') {
-    where.location = { province };
+  if (status === 'pending') {
+    where.isApproved = false;
+  } else if (status === 'approved') {
+    where.isApproved = true;
   }
   
-  // ดึงข้อมูลโค้ชตามเงื่อนไข
-  const coaches = await prisma.coach.findMany({
-    where,
-    include: {
-      user: {
-        select: {
-          firstName: true,
-          lastName: true,
-          image: true
-        }
-      },
-      location: true,
-      batchParticipations: {
-        where: { status: 'APPROVED' },
-        include: {
-          batch: true
-        },
-        orderBy: [
-          { batch: { year: 'desc' } },
-          { batch: { batchNumber: 'desc' } }
-        ]
+  // กรองตามรุ่นอบรม
+  if (batchId !== 'all') {
+    where.batchParticipations = {
+      some: {
+        batchId: parseInt(batchId)
       }
-    },
-    orderBy: [
-      { user: { firstName: 'asc' } },
-      { user: { lastName: 'asc' } }
-    ]
-  });
+    };
+  }
   
-  // สร้างข้อมูลสถิติ
-  const stats = {
-    totalCoaches: await prisma.coach.count({
-      where: {
+  // ถ้าไม่ใช่แอดมิน ให้แสดงเฉพาะข้อมูลของตัวเอง
+  if (!isAdmin) {
+    where.userId = session.user.id;
+  }
+
+  // ดึงข้อมูลโค้ชและทำการแบ่งหน้า
+  const [coaches, totalCount] = await Promise.all([
+    prisma.coach.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+      include: {
+        user: {
+          select: {
+            firstName: true,
+            lastName: true,
+            email: true,
+            image: true,
+          }
+        },
+        location: true,
         batchParticipations: {
-          some: { status: 'APPROVED' }
+          include: {
+            batch: true
+          }
         }
       }
     }),
-    totalTrainings: await prisma.trainingBatch.count(),
-    provinces: await prisma.location.count({
-      select: { province: true },
-      distinct: ['province']
+    prisma.coach.count({ where })
+  ]);
+  
+  // คำนวณจำนวนหน้าทั้งหมด
+  const totalPages = Math.ceil(totalCount / pageSize);
+
+  // ดึงข้อมูลรุ่นการอบรมเพื่อแสดงชื่อรุ่นในหน้าเว็บ (ถ้ามีการกรอง)
+  let currentBatchName = 'ทุกรุ่น';
+  if (batchId !== 'all') {
+    const batchInfo = await prisma.trainingBatch.findUnique({
+      where: { id: parseInt(batchId) },
+      select: { batchNumber: true, year: true }
+    });
+    
+    if (batchInfo) {
+      currentBatchName = `รุ่นที่ ${batchInfo.batchNumber}/${batchInfo.year}`;
+    }
+  }
+
+  // ดึงรุ่นการอบรมทั้งหมดสำหรับตัวกรอง
+  const trainingBatches = await prisma.trainingBatch.findMany({
+    orderBy: [
+      { year: 'desc' },
+      { batchNumber: 'desc' }
+    ],
+    select: {
+      id: true,
+      batchNumber: true,
+      year: true,
+      isActive: true
+    }
+  });
+
+  // ดึงข้อมูลสถิติสำหรับแสดงบน dashboard
+  const stats = {
+    total: await prisma.coach.count(),
+    approved: await prisma.coach.count({ where: { isApproved: true } }),
+    pending: await prisma.coach.count({ where: { isApproved: false } }),
+    registeredToday: await prisma.coach.count({
+      where: {
+        createdAt: {
+          gte: new Date(new Date().setHours(0, 0, 0, 0))
+        }
+      }
     })
   };
 
-  // จัดกลุ่มโค้ชตามรุ่นอบรม (สำหรับบางส่วนของ UI)
-  const coachesByBatch = coaches.reduce((acc: Record<string, any[]>, coach) => {
-    coach.batchParticipations.forEach(participation => {
-      const batchKey = `${participation.batch.batchNumber}-${participation.batch.year}`;
-      if (!acc[batchKey]) {
-        acc[batchKey] = [];
-      }
-      acc[batchKey].push({...coach, currentBatch: participation.batch});
-    });
-    return acc;
-  }, {});
-
   return (
-    <>
-      {/* Hero Section */}
-      <section className="relative bg-futsal-navy overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-futsal-navy/90 to-futsal-navy/70 z-10"></div>
-        <div className="absolute inset-0 bg-[url('/images/coaches-bg.jpg')] bg-cover bg-center opacity-40"></div>
-        
-        <div className="container mx-auto px-4 py-16 relative z-20">
-          <div className="max-w-3xl">
-            <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-              โค้ชฟุตซอลมืออาชีพ
-              <span className="block text-futsal-orange">ที่ผ่านการรับรอง</span>
-            </h1>
-            <p className="text-gray-200 text-lg mb-8">
-              รายชื่อโค้ชที่ผ่านการฝึกอบรมและได้รับการรับรองจากสมาคมฟุตซอลแห่งประเทศไทย
-              พร้อมนำความรู้และประสบการณ์มาพัฒนาวงการฟุตซอลไทย
-            </p>
-            
-            <div className="flex flex-wrap gap-4">
-              <div className="flex items-center bg-white/10 backdrop-blur-sm px-4 py-3 rounded-lg">
-                <div className="mr-3">
-                  <Medal className="h-9 w-9 text-futsal-gold" />
-                </div>
-                <div>
-                  <div className="text-sm text-gray-300">โค้ชที่ได้รับการรับรอง</div>
-                  <div className="text-2xl font-bold text-white">{stats.totalCoaches}+</div>
-                </div>
-              </div>
-              
-              <div className="flex items-center bg-white/10 backdrop-blur-sm px-4 py-3 rounded-lg">
-                <div className="mr-3">
-                  <Calendar className="h-9 w-9 text-futsal-green" />
-                </div>
-                <div>
-                  <div className="text-sm text-gray-300">การอบรมที่จัดขึ้น</div>
-                  <div className="text-2xl font-bold text-white">{stats.totalTrainings} รุ่น</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-      
+    <div className="p-6 max-w-7xl mx-auto">
       {/* Stats Cards */}
-      <section className="bg-gray-50 py-8">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex items-center">
-              <div className="h-14 w-14 rounded-full bg-futsal-blue/10 flex items-center justify-center mr-4">
-                <Users className="h-7 w-7 text-futsal-blue" />
-              </div>
-              <div>
-                <p className="text-gray-500 font-medium">โค้ชทั้งหมด</p>
-                <p className="text-3xl font-bold text-futsal-navy">{stats.totalCoaches}</p>
-                <p className="text-xs text-futsal-blue">พร้อมพัฒนาฟุตซอลไทย</p>
-              </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <Card className="bg-gradient-to-br from-futsal-blue/10 to-futsal-navy/5 border-futsal-blue/20">
+          <CardContent className="p-4 flex items-center">
+            <div className="bg-futsal-blue/20 w-12 h-12 rounded-lg flex items-center justify-center mr-4">
+              <Users className="h-6 w-6 text-futsal-blue" />
             </div>
-            
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex items-center">
-              <div className="h-14 w-14 rounded-full bg-futsal-orange/10 flex items-center justify-center mr-4">
-                <TrendingUp className="h-7 w-7 text-futsal-orange" />
-              </div>
-              <div>
-                <p className="text-gray-500 font-medium">จำนวนรุ่น</p>
-                <p className="text-3xl font-bold text-futsal-navy">{stats.totalTrainings}</p>
-                <p className="text-xs text-futsal-orange">การอบรมอย่างต่อเนื่อง</p>
-              </div>
-            </div>
-            
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex items-center">
-              <div className="h-14 w-14 rounded-full bg-futsal-green/10 flex items-center justify-center mr-4">
-                <MapPin className="h-7 w-7 text-futsal-green" />
-              </div>
-              <div>
-                <p className="text-gray-500 font-medium">จังหวัด</p>
-                <p className="text-3xl font-bold text-futsal-navy">{stats.provinces}</p>
-                <p className="text-xs text-futsal-green">ครอบคลุมทั่วประเทศ</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-      
-      {/* Search Section */}
-      <section className="py-8 container mx-auto px-4">
-        <div className="bg-white rounded-2xl shadow-md border border-gray-100 p-6">
-          <div className="flex items-center mb-6">
-            <Sparkles className="w-5 h-5 text-futsal-gold mr-2" />
-            <h2 className="text-xl font-bold text-futsal-navy">ค้นหาโค้ชที่ผ่านการรับรอง</h2>
-          </div>
-          
-          <form action="/coaches" className="grid gap-4 md:grid-cols-4">
             <div>
-              <label htmlFor="year" className="block text-sm font-medium text-gray-700 mb-1">ปีที่อบรม</label>
-              <Select name="year" defaultValue={selectedYear.toString()}>
-                <SelectTrigger className="bg-gray-50 border-gray-200">
-                  <SelectValue placeholder="เลือกปี" />
-                </SelectTrigger>
-                <SelectContent>
-                  {uniqueYears.map(year => (
-                    <SelectItem key={year} value={year.toString()}>
-                      ปี {year}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <p className="text-sm text-gray-500">จำนวนโค้ชทั้งหมด</p>
+              <h3 className="text-2xl font-bold text-futsal-navy">
+                {stats.total}
+              </h3>
             </div>
-            
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-futsal-green/10 to-futsal-green/5 border-futsal-green/20">
+          <CardContent className="p-4 flex items-center">
+            <div className="bg-futsal-green/20 w-12 h-12 rounded-lg flex items-center justify-center mr-4">
+              <CheckCircle className="h-6 w-6 text-futsal-green" />
+            </div>
             <div>
-              <label htmlFor="batch" className="block text-sm font-medium text-gray-700 mb-1">รุ่นที่อบรม</label>
-              <Select name="batch" defaultValue={batchNumber?.toString() || "all"}>
-                <SelectTrigger className="bg-gray-50 border-gray-200">
-                  <SelectValue placeholder="ทุกรุ่น" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">ทุกรุ่น</SelectItem>
-                  {batches.map(batch => (
-                    <SelectItem key={batch.id} value={batch.batchNumber.toString()}>
-                      รุ่นที่ {batch.batchNumber}/{batch.year}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <p className="text-sm text-gray-500">อนุมัติแล้ว</p>
+              <h3 className="text-2xl font-bold text-futsal-green">
+                {stats.approved}
+              </h3>
             </div>
-            
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-futsal-orange/10 to-futsal-orange/5 border-futsal-orange/20">
+          <CardContent className="p-4 flex items-center">
+            <div className="bg-futsal-orange/20 w-12 h-12 rounded-lg flex items-center justify-center mr-4">
+              <Clock className="h-6 w-6 text-futsal-orange" />
+            </div>
             <div>
-              <label htmlFor="province" className="block text-sm font-medium text-gray-700 mb-1">จังหวัด</label>
-              <Select name="province" defaultValue={province || "all"}>
-                <SelectTrigger className="bg-gray-50 border-gray-200">
-                  <SelectValue placeholder="ทุกจังหวัด" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">ทุกจังหวัด</SelectItem>
-                  {provinces.map(p => (
-                    <SelectItem key={p.province} value={p.province}>
-                      {p.province}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <p className="text-sm text-gray-500">รอการอนุมัติ</p>
+              <h3 className="text-2xl font-bold text-futsal-orange">
+                {stats.pending}
+              </h3>
             </div>
-            
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-purple-500/10 to-purple-600/5 border-purple-500/20">
+          <CardContent className="p-4 flex items-center">
+            <div className="bg-purple-500/20 w-12 h-12 rounded-lg flex items-center justify-center mr-4">
+              <Users className="h-6 w-6 text-purple-500" />
+            </div>
             <div>
-              <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-1">ค้นหาชื่อ</label>
-              <div className="relative">
-                <Input
-                  type="text"
-                  name="search"
-                  placeholder="ค้นหาชื่อโค้ช..."
-                  defaultValue={search}
-                  className="pl-9 bg-gray-50 border-gray-200"
-                />
-                <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-              </div>
+              <p className="text-sm text-gray-500">ลงทะเบียนวันนี้</p>
+              <h3 className="text-2xl font-bold text-purple-600">
+                {stats.registeredToday}
+              </h3>
             </div>
-            
-            <div className="md:col-span-4 mt-2">
-              <Button type="submit" className="bg-futsal-blue hover:bg-futsal-blue/90 text-white w-full md:w-auto">
-                <Search className="h-4 w-4 mr-2" />
-                ค้นหาโค้ช
-              </Button>
-            </div>
-          </form>
-        </div>
-      </section>
-      
-      {/* Search Results Summary */}
-      {(search || province !== 'all' || batchNumber) && (
-        <div className="container mx-auto px-4 mb-4">
-          <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
-            <p className="text-sm text-gray-700">
-              พบข้อมูลโค้ช <span className="font-semibold text-futsal-blue">{coaches.length}</span> รายการ
-              {batchNumber ? ` ในรุ่นที่ ${batchNumber}/${selectedYear}` : ''}
-              {province && province !== 'all' ? ` จังหวัด${province}` : ''}
-              {search ? ` ที่ตรงกับคำค้นหา "${search}"` : ''}
-            </p>
-          </div>
-        </div>
-      )}
-      
-      {/* Coaches Grid */}
-      <section className="py-8 container mx-auto px-4">
-        {coaches.length === 0 ? (
-          <div className="bg-white rounded-2xl shadow border border-gray-100 p-12 text-center">
-            <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Users className="h-10 w-10 text-gray-400" />
-            </div>
-            <h3 className="text-xl font-semibold text-gray-700 mb-2">ไม่พบข้อมูลโค้ช</h3>
-            <p className="text-gray-500 max-w-md mx-auto">
-              ไม่พบข้อมูลโค้ชที่ตรงกับเงื่อนไขการค้นหา กรุณาลองปรับเปลี่ยนตัวกรองหรือคำค้นหาใหม่
-            </p>
-          </div>
-        ) : (
-          <>
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-futsal-navy">รายชื่อโค้ช</h2>
-              
-              <div className="flex items-center">
-                <span className="mr-2 text-sm text-gray-500">เรียงตาม:</span>
-                <Select defaultValue="name">
-                  <SelectTrigger className="w-[160px] border-gray-200 bg-white">
-                    <SelectValue placeholder="เรียงตามชื่อ" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="name">ชื่อ (ก-ฮ)</SelectItem>
-                    <SelectItem value="experience">ประสบการณ์ (มาก-น้อย)</SelectItem>
-                    <SelectItem value="latest">เข้าร่วมล่าสุด</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {coaches.map((coach) => (
-                <div key={coach.id} className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-300 border border-gray-100">
-                  <div className="p-4 border-b border-gray-100 flex items-center">
-                    <Avatar className="h-14 w-14 border-2 border-futsal-blue/20">
-                      <AvatarFallback className="bg-futsal-blue/10 text-futsal-blue text-lg font-medium">
-                        {coach.user.firstName?.charAt(0) || ''}
-                        {coach.user.lastName?.charAt(0) || ''}
-                      </AvatarFallback>
-                    </Avatar>
-                    
-                    <div className="ml-3 overflow-hidden">
-                      <h3 className="font-semibold text-futsal-navy truncate">
-                        {coach.user.firstName} {coach.user.lastName}
-                      </h3>
-                      
-                      <div className="flex items-center text-sm text-gray-500 mt-1">
-                        <MapPin className="h-3.5 w-3.5 mr-1 flex-shrink-0" />
-                        <span className="truncate">{coach.location?.province || 'ไม่ระบุจังหวัด'}</span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="p-4 pt-3">
-                    <div className="grid grid-cols-2 gap-3 mb-4">
-                      <div className="bg-gray-50 rounded p-2 text-center">
-                        <div className="text-sm text-gray-500 mb-1">ประสบการณ์</div>
-                        <div className="font-semibold text-futsal-navy">{coach.coachExperience} ปี</div>
-                      </div>
-                      
-                      <div className="bg-gray-50 rounded p-2 text-center">
-                        <div className="text-sm text-gray-500 mb-1">เข้าร่วมอบรม</div>
-                        <div className="font-semibold text-futsal-navy">{coach.batchParticipations.length} ครั้ง</div>
-                      </div>
-                    </div>
-                    
-                    {coach.teamName && (
-                      <div className="flex items-center mb-3 text-sm">
-                        <div className="font-medium text-gray-700 mr-2">ทีม:</div>
-                        <div className="text-futsal-blue">{coach.teamName}</div>
-                      </div>
-                    )}
-                    
-                    <div className="mb-3">
-                      <div className="font-medium text-sm text-gray-700 mb-1.5">การอบรมที่ผ่านมา:</div>
-                      <div className="flex flex-wrap gap-1.5">
-                        {coach.batchParticipations.map((participation) => (
-                          <Badge
-                            key={participation.id}
-                            className="bg-futsal-navy/10 hover:bg-futsal-navy/20 text-futsal-navy border-none font-normal"
-                          >
-                            รุ่น {participation.batch.batchNumber}/{participation.batch.year}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </>
-        )}
-      </section>
-      
-      {/* Call to Action */}
-      <section className="py-16 bg-futsal-navy">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">สนใจเข้าร่วมการอบรมโค้ชฟุตซอล?</h2>
-          <p className="text-gray-300 max-w-2xl mx-auto mb-8">
-            เสริมสร้างทักษะและความรู้ด้านฟุตซอลกับผู้เชี่ยวชาญ และรับวุฒิบัตรรับรองจากสมาคมฟุตซอลแห่งประเทศไทย
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="flex flex-col md:flex-row md:items-center justify-between mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-futsal-navy">
+            รายชื่อโค้ชฟุตซอล
+          </h1>
+          <p className="text-gray-600">
+            จัดการรายชื่อโค้ช และดูสถานะการลงทะเบียน
+            {batchId !== "all" && ` - ${currentBatchName}`}
           </p>
-          <div className="flex justify-center space-x-4">
-            <Button className="bg-futsal-orange hover:bg-futsal-orange/90 text-white px-8 py-6 rounded-full text-lg">
-              ดูรุ่นอบรมที่เปิดรับสมัคร
-            </Button>
-            <Button variant="outline" className="border-white text-white hover:bg-white/10 px-8 py-6 rounded-full text-lg">
-              ติดต่อสอบถาม
-            </Button>
-          </div>
         </div>
-      </section>
-      
-      {/* Featured Batch (ถ้ามีการจัดรุ่นปัจจุบัน) */}
-      {batches.length > 0 && batches.some(batch => batch.isActive) && (
-        <section className="py-16 bg-gray-50">
-          <div className="container mx-auto px-4">
-            <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8">
-              <div>
-                <Badge className="bg-futsal-green text-white mb-2">เปิดรับสมัครขณะนี้</Badge>
-                <h2 className="text-2xl font-bold text-futsal-navy">การอบรมโค้ชฟุตซอลรุ่นล่าสุด</h2>
-                <p className="text-gray-600">โอกาสสำคัญในการพัฒนาตนเองกับผู้เชี่ยวชาญระดับชาติ</p>
-              </div>
-              
-              <Button asChild className="mt-4 md:mt-0 bg-futsal-blue hover:bg-futsal-blue/90">
-                <Link href="/training">
-                  สมัครเข้าร่วมการอบรม
-                  <ChevronRight className="h-4 w-4 ml-1" />
-                </Link>
-              </Button>
-            </div>
-            
-            <div className="bg-white rounded-2xl shadow overflow-hidden">
-              {batches.filter(batch => batch.isActive).slice(0, 1).map(batch => (
-                <div key={batch.id} className="grid md:grid-cols-2">
-                  <div className="p-8">
-                    <Badge className="mb-4 bg-futsal-gold/20 text-futsal-gold border-futsal-gold/20">
-                      รุ่นที่ {batch.batchNumber}/{batch.year}
-                    </Badge>
-                    
-                    <h3 className="text-xl font-bold text-futsal-navy mb-2">
-                      การอบรมโค้ชฟุตซอล
-                    </h3>
-                    
-                    <p className="text-gray-600 mb-6">
-                      {batch.description || 'เข้าร่วมการอบรมเพื่อพัฒนาทักษะและความรู้ด้านฟุตซอลกับผู้เชี่ยวชาญระดับชาติ พร้อมเทคนิคการฝึกซ้อมและการวิเคราะห์เกม'}
-                    </p>
-                    
-                    <div className="space-y-3 mb-6">
-                      <div className="flex items-start">
-                        <Calendar className="h-5 w-5 text-futsal-blue mt-1 mr-3" />
-                        <div>
-                          <div className="font-medium">วันที่จัดอบรม</div>
-                          <div className="text-gray-600">
-                            {new Date(batch.startDate).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' })} - 
-                            {new Date(batch.endDate).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' })}
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-start">
-                        <MapPin className="h-5 w-5 text-futsal-blue mt-1 mr-3" />
-                        <div>
-                          <div className="font-medium">สถานที่</div>
-                          <div className="text-gray-600">{batch.location}</div>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <Button asChild className="w-full md:w-auto bg-futsal-navy hover:bg-futsal-navy/90">
-                      <Link href={`/training/${batch.id}`}>
-                        ดูรายละเอียดเพิ่มเติม
-                        <ChevronRight className="h-4 w-4 ml-1" />
-                      </Link>
-                    </Button>
-                  </div>
-                  
-                  <div className="relative min-h-[300px] bg-gray-100">
-                    <Image 
-                      src="/images/futsal-coaching.jpg"
-                      alt="การอบรมโค้ชฟุตซอล"
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
+        {isAdmin && (
+          <div className="mt-4 md:mt-0 flex space-x-2">
+            <ExportCSVDropdown batches={trainingBatches} />
+            <RefreshButton />
+            <Button
+              asChild
+              className="bg-futsal-orange hover:bg-futsal-orange/90"
+            >
+              <Link
+                href="/dashboard/coach/add"
+                className="flex items-center gap-2"
+              >
+                <Plus className="h-4 w-4" />
+                <span>เพิ่มโค้ช</span>
+              </Link>
+            </Button>
           </div>
-        </section>
+        )}
+      </div>
+
+      {/* ส่วนการค้นหาและกรอง */}
+      <ClientSearchFilter
+        defaultStatus={status}
+        defaultSearch={search}
+        defaultBatch={batchId}
+        batches={trainingBatches}
+      />
+
+      {/* สรุปผลการค้นหา */}
+      {(search || status !== "all" || batchId !== "all") && (
+        <div className="mt-4 bg-gray-50 p-3 rounded-lg">
+          <p className="text-sm text-gray-600">
+            พบทั้งหมด <span className="font-semibold">{totalCount}</span> รายการ
+            {batchId !== "all" && ` ในรุ่น ${currentBatchName}`}
+            {status !== "all" &&
+              ` สถานะ: ${
+                status === "pending" ? "รอการอนุมัติ" : "อนุมัติแล้ว"
+              }`}
+            {search && ` ที่ตรงกับ "${search}"`}
+          </p>
+        </div>
       )}
-    </>
+
+      {/* แสดงรายการโค้ช */}
+      {coaches.length > 0 ? (
+        <>
+          {/* แสดงแบบตารางบนหน้าจอขนาดใหญ่ */}
+          <div className="hidden md:block mt-6">
+            <CoachTable coaches={coaches} isAdmin={isAdmin} />
+          </div>
+
+          {/* แสดงแบบการ์ดบนหน้าจอขนาดเล็ก */}
+          <div className="md:hidden grid grid-cols-1 gap-4 mt-6">
+            {coaches.map((coach) => (
+              <CoachCard key={coach.id} coach={coach} />
+            ))}
+          </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="mt-8">
+              <Pagination
+                currentPage={page}
+                totalPages={totalPages}
+                baseUrl="/dashboard/coach"
+                searchParams={{
+                  q: search || undefined,
+                  status: status !== "all" ? status : undefined,
+                  batch: batchId !== "all" ? batchId : undefined,
+                }}
+              />
+            </div>
+          )}
+        </>
+      ) : (
+        <EmptyState
+          search={search}
+          status={status}
+          batch={batchId}
+          isAdmin={isAdmin}
+        />
+      )}
+    </div>
   );
 }

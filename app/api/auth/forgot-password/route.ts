@@ -42,50 +42,56 @@ export async function POST(req: NextRequest) {
 
     const resetUrl = `${process.env.NEXTAUTH_URL}/auth/reset-password?token=${token}`;
 
-          const htmlContent = `
+    const htmlContent = `
       <!DOCTYPE html>
       <html lang="th">
       <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>รีเซ็ตรหัสผ่าน - SDN Map-portal</title>
+        <title>รีเซ็ตรหัสผ่าน - SDN FUTSAL</title>
       </head>
-      <body style="font-family: 'Sarabun', Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0;">
+      <body style="font-family: 'Prompt', Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0;">
         <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; margin: 0 auto; padding: 20px;">
           <tr>
           <td align="center" style="padding-bottom: 20px;">
-            <img src="${process.env.NEXTAUTH_URL}/images/logo.png" alt="SDN Thailand Logo" width="150" style="display: block;">
+            <img src="${process.env.NEXTAUTH_URL}/images/logo.png" alt="SDN FUTSAL Logo" width="150" style="display: block;">
           </td>
           </tr>
           <tr>
             <td>
-              <h2 style="color: #f58220;">รีเซ็ตรหัสผ่านของคุณ</h2>
+              <h2 style="color: #2c2f72;">รีเซ็ตรหัสผ่านของคุณ</h2>
               <p>เรียน คุณ${user.firstName},</p>
-              <p>เราได้รับคำขอให้รีเซ็ตรหัสผ่านสำหรับบัญชีของคุณที่ SDN Map-portal หากคุณไม่ได้ทำการร้องขอนี้ กรุณาเพิกเฉยต่ออีเมลนี้</p>
+              <p>เราได้รับคำขอให้รีเซ็ตรหัสผ่านสำหรับบัญชีของคุณที่ SDN FUTSAL หากคุณไม่ได้ทำการร้องขอนี้ กรุณาเพิกเฉยต่ออีเมลนี้</p>
               <p>คลิกที่ปุ่มด้านล่างเพื่อรีเซ็ตรหัสผ่านของคุณ:</p>
               <table border="0" cellpadding="0" cellspacing="0" width="100%">
                 <tr>
                   <td align="center" style="padding: 20px 0;">
-                    <a href="${resetUrl}" style="background-color: #f58220; color: #ffffff; text-decoration: none; padding: 10px 20px; border-radius: 5px; display: inline-block;">รีเซ็ตรหัสผ่าน</a>
+                    <a href="${resetUrl}" style="background-color: #2c2f72; color: #ffffff; text-decoration: none; padding: 10px 20px; border-radius: 5px; display: inline-block;">รีเซ็ตรหัสผ่าน</a>
                   </td>
                 </tr>
               </table>
               <p>หากคุณมีปัญหาในการคลิกปุ่ม ให้คัดลอกและวางลิงก์ต่อไปนี้ลงในเบราว์เซอร์ของคุณ:</p>
               <p>${resetUrl}</p>
               <p>ลิงก์นี้จะหมดอายุภายใน 1 ชั่วโมง เพื่อความปลอดภัยของบัญชีของคุณ</p>
-              <p>หากคุณไม่ได้ร้องขอการรีเซ็ตรหัสผ่าน กรุณาติดต่อเราทันทีที่ <a href="mailto:evo_reaction@hotmail.com" style="color: #f58220;">support@sdnmapportal.sdnthailand.com</a></p>
-              <p>ขอแสดงความนับถือ,<br>ทีมงาน SDN Map-portal</p>
+              <p>หากคุณไม่ได้ร้องขอการรีเซ็ตรหัสผ่าน กรุณาติดต่อเราทันทีที่ <a href="mailto:support@sdnfutsal.com" style="color: #0066CC;">support@sdnfutsal.com</a></p>
+              <p>ขอแสดงความนับถือ,<br>ทีมงาน SDN FUTSAL</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding-top: 30px; text-align: center; font-size: 12px; color: #666;">
+              <p>&copy; 2024 SDN FUTSAL No L CUP. All rights reserved.</p>
+              <p>sdnfutsal.com</p>
             </td>
           </tr>
         </table>
       </body>
       </html>
-      `;
+    `;
 
     const mailOptions = {
-      from: '"SDN Map-portal" <noreply@sdnmapportal.sdnthailand.com>',
+      from: '"SDN FUTSAL" <noreply@sdnfutsal.com>',
       to: email,
-      subject: "รีเซ็ตรหัสผ่าน - SDN Map-portal",
+      subject: "รีเซ็ตรหัสผ่าน - SDN FUTSAL",
       html: htmlContent,
     };
 

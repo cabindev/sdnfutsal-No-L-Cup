@@ -27,10 +27,9 @@ import prisma from "@/app/lib/db";
 
 export const metadata: Metadata = {
   title: "รายชื่อโค้ชฟุตซอล | SDN FUTSAL NO L CUP",
-  description: "รายชื่อโค้ชฟุตซอลที่ผ่านการอบรมอย่างเป็นทางการจาก SDN FUTSAL และกรมพละศึกษา ",
+  description: "รายชื่อโค้ชฟุตซอลที่ผ่านการอบรมอย่างเป็นทางการจาก SDN FUTSAL NO L CUP และกรมพละศึกษา ",
 };
 
-// ใช้ interface แทน any เพื่อความปลอดภัยของ type
 interface ParticipationWithBatch {
   id: number;
   batch: {
@@ -210,7 +209,7 @@ export default async function CoachesPage({
               <span className="block text-futsal-orange">ที่ผ่านการรับรอง</span>
             </h1>
             <p className="text-gray-200 text-lg mb-8">
-              รายชื่อโค้ชที่ผ่านการฝึกอบรมและได้รับการรับรองจากสมาคมฟุตซอลแห่งประเทศไทย
+              รายชื่อโค้ชที่ผ่านการฝึกอบรมและได้รับการรับรองจากกรมพละศึกษา
               พร้อมนำความรู้และประสบการณ์มาพัฒนาวงการฟุตซอลไทย
             </p>
             

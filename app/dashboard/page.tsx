@@ -99,7 +99,7 @@ export default async function DashboardPage() {
         </div>
         <div className="mt-4 md:mt-0">
           <Button asChild className="bg-futsal-orange hover:bg-futsal-orange/90">
-            <Link href="/dashboard/coach/training">
+            <Link href="/dashboard/training">
               <Calendar className="mr-2 h-4 w-4" />
               ดูการอบรมทั้งหมด
             </Link>

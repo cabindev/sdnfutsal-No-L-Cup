@@ -1,5 +1,5 @@
-// app/types/chart.ts
-import { HealthZone } from '@/app/utils/healthZones';
+// app/dashboard/components/types/chart.ts
+
 
 export interface ChartData {
   name: string;
@@ -40,6 +40,5 @@ export interface ChartStatisticData {
   documentsByProvince: { name: string; count: number }[];
   documentsByCategory: { name: string; count: number; color: string }[];
   documentsCreatedByMonth: { date: string; count: number }[];
-  documentsByHealthZone: { name: string; value: number; id: HealthZone; color: string }[]; // เพิ่มข้อมูลตามโซนสุขภาพ
+  documentsByHealthZone: { name: string; value: number; id: string | number; color: string }[]; // แก้ type ของ id เป็น string | number
 }
-

@@ -1,3 +1,4 @@
+// app/dashboard/training/participants/page.tsx
 import { getServerSession } from "next-auth/next";
 import authOptions from "@/app/lib/configs/auth/authOptions";
 import { redirect } from "next/navigation";
@@ -147,18 +148,23 @@ export default async function ParticipantsPage({
     <div className="p-6 max-w-7xl mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-futsal-navy">จัดการผู้เข้าร่วมอบรม</h1>
+          <h1 className="text-2xl font-bold text-futsal-navy">
+            จัดการผู้เข้าร่วมอบรม
+          </h1>
           <p className="text-gray-600">อนุมัติและจัดการการลงทะเบียนของโค้ช</p>
         </div>
-        
-        <Button asChild className="mt-4 sm:mt-0 bg-futsal-orange hover:bg-futsal-orange/90">
+
+        <Button
+          asChild
+          className="mt-4 sm:mt-0 bg-futsal-orange hover:bg-futsal-orange/90"
+        >
           <Link href="/dashboard/training/batch">
             จัดการรุ่นอบรม
             <ChevronRight className="h-4 w-4 ml-1" />
           </Link>
         </Button>
       </div>
-      
+
       {/* สถิติการลงทะเบียน */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <Card className="bg-gradient-to-br from-futsal-blue/10 to-futsal-navy/5 border-futsal-blue/20">
@@ -168,11 +174,13 @@ export default async function ParticipantsPage({
             </div>
             <div>
               <p className="text-sm text-gray-500">ผู้ลงทะเบียนทั้งหมด</p>
-              <h3 className="text-2xl font-bold text-futsal-navy">{stats.total}</h3>
+              <h3 className="text-2xl font-bold text-futsal-navy">
+                {stats.total}
+              </h3>
             </div>
           </CardContent>
         </Card>
-        
+
         <Card className="bg-gradient-to-br from-amber-500/10 to-amber-600/5 border-amber-500/20">
           <CardContent className="p-4 flex items-center">
             <div className="bg-amber-500/20 w-12 h-12 rounded-lg flex items-center justify-center mr-4">
@@ -180,11 +188,13 @@ export default async function ParticipantsPage({
             </div>
             <div>
               <p className="text-sm text-gray-500">รอการอนุมัติ</p>
-              <h3 className="text-2xl font-bold text-amber-600">{stats.pending}</h3>
+              <h3 className="text-2xl font-bold text-amber-600">
+                {stats.pending}
+              </h3>
             </div>
           </CardContent>
         </Card>
-        
+
         <Card className="bg-gradient-to-br from-futsal-green/10 to-futsal-green/5 border-futsal-green/20">
           <CardContent className="p-4 flex items-center">
             <div className="bg-futsal-green/20 w-12 h-12 rounded-lg flex items-center justify-center mr-4">
@@ -192,11 +202,13 @@ export default async function ParticipantsPage({
             </div>
             <div>
               <p className="text-sm text-gray-500">อนุมัติแล้ว</p>
-              <h3 className="text-2xl font-bold text-futsal-green">{stats.approved}</h3>
+              <h3 className="text-2xl font-bold text-futsal-green">
+                {stats.approved}
+              </h3>
             </div>
           </CardContent>
         </Card>
-        
+
         <Card className="bg-gradient-to-br from-red-500/10 to-red-600/5 border-red-500/20">
           <CardContent className="p-4 flex items-center">
             <div className="bg-red-500/20 w-12 h-12 rounded-lg flex items-center justify-center mr-4">
@@ -204,57 +216,59 @@ export default async function ParticipantsPage({
             </div>
             <div>
               <p className="text-sm text-gray-500">ไม่อนุมัติ</p>
-              <h3 className="text-2xl font-bold text-red-600">{stats.rejected}</h3>
+              <h3 className="text-2xl font-bold text-red-600">
+                {stats.rejected}
+              </h3>
             </div>
           </CardContent>
         </Card>
       </div>
-      
+
       {/* ตัวกรองและการค้นหา */}
       <div className="flex flex-col md:flex-row gap-4 mb-6">
         <div className="flex flex-wrap gap-2 md:flex-1">
           <Link href="/dashboard/training/participants">
-            <Button 
-              variant={filter === 'all' ? 'default' : 'outline'}
+            <Button
+              variant={filter === "all" ? "default" : "outline"}
               size="sm"
-              className={filter === 'all' ? 'bg-futsal-navy' : ''}
+              className={filter === "all" ? "bg-futsal-navy" : ""}
             >
               ทั้งหมด
             </Button>
           </Link>
           <Link href="/dashboard/training/participants?filter=pending">
-            <Button 
-              variant={filter === 'pending' ? 'default' : 'outline'}
+            <Button
+              variant={filter === "pending" ? "default" : "outline"}
               size="sm"
-              className={filter === 'pending' ? 'bg-amber-500' : ''}
+              className={filter === "pending" ? "bg-amber-500" : ""}
             >
               รอการอนุมัติ
             </Button>
           </Link>
           <Link href="/dashboard/training/participants?filter=approved">
-            <Button 
-              variant={filter === 'approved' ? 'default' : 'outline'}
+            <Button
+              variant={filter === "approved" ? "default" : "outline"}
               size="sm"
-              className={filter === 'approved' ? 'bg-futsal-green' : ''}
+              className={filter === "approved" ? "bg-futsal-green" : ""}
             >
               อนุมัติแล้ว
             </Button>
           </Link>
           <Link href="/dashboard/training/participants?filter=rejected">
-            <Button 
-              variant={filter === 'rejected' ? 'default' : 'outline'}
+            <Button
+              variant={filter === "rejected" ? "default" : "outline"}
               size="sm"
-              className={filter === 'rejected' ? 'bg-red-600' : ''}
+              className={filter === "rejected" ? "bg-red-600" : ""}
             >
               ไม่อนุมัติ
             </Button>
           </Link>
         </div>
-        
+
         <div className="flex gap-2">
           <div className="relative">
             <form action="/dashboard/training/participants" method="get">
-              {filter !== 'all' && (
+              {filter !== "all" && (
                 <input type="hidden" name="filter" value={filter} />
               )}
               {batchId && (
@@ -268,36 +282,42 @@ export default async function ParticipantsPage({
                 className="pl-9 w-full md:w-64"
               />
               <Search className="h-4 w-4 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2" />
-              <Button type="submit" className="sr-only">ค้นหา</Button>
+              <Button type="submit" className="sr-only">
+                ค้นหา
+              </Button>
             </form>
           </div>
-          
-          <BatchSelector 
-            batches={batches} 
-            currentBatchId={batchId} 
-            filter={filter} 
+
+          <BatchSelector
+            batches={batches}
+            currentBatchId={batchId}
+            filter={filter}
             search={search}
           />
         </div>
       </div>
-      
+
       {/* แสดงรายชื่อผู้ลงทะเบียน */}
       <Card>
         <CardHeader>
           <CardTitle className="text-lg flex items-center">
             <UserCheck className="h-5 w-5 mr-2 text-futsal-blue" />
-            รายชื่อผู้ลงทะเบียน {filter === 'pending' ? '(รอการอนุมัติ)' : ''}
+            รายชื่อผู้ลงทะเบียน {filter === "pending" ? "(รอการอนุมัติ)" : ""}
           </CardTitle>
         </CardHeader>
         <CardContent>
           {participants.length === 0 ? (
             <div className="p-12 text-center">
               <Users className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-              <h3 className="text-lg font-medium text-gray-700 mb-1">ไม่พบข้อมูลการลงทะเบียน</h3>
+              <h3 className="text-lg font-medium text-gray-700 mb-1">
+                ไม่พบข้อมูลการลงทะเบียน
+              </h3>
               <p className="text-gray-500">
-                {search ? 'ไม่พบผลลัพธ์ที่ตรงกับการค้นหา' : 
-                 filter !== 'all' ? 'ไม่พบข้อมูลสำหรับตัวกรองที่เลือก' : 
-                 'ยังไม่มีการลงทะเบียนในขณะนี้'}
+                {search
+                  ? "ไม่พบผลลัพธ์ที่ตรงกับการค้นหา"
+                  : filter !== "all"
+                  ? "ไม่พบข้อมูลสำหรับตัวกรองที่เลือก"
+                  : "ยังไม่มีการลงทะเบียนในขณะนี้"}
               </p>
             </div>
           ) : (
@@ -305,11 +325,19 @@ export default async function ParticipantsPage({
               <table className="w-full text-sm">
                 <thead className="bg-gray-50 text-gray-600">
                   <tr>
-                    <th className="px-4 py-3 text-left font-medium">ชื่อ-นามสกุล</th>
-                    <th className="px-4 py-3 text-left font-medium">รุ่นที่สมัคร</th>
-                    <th className="px-4 py-3 text-left font-medium">วันที่ลงทะเบียน</th>
+                    <th className="px-4 py-3 text-left font-medium">
+                      ชื่อ-นามสกุล
+                    </th>
+                    <th className="px-4 py-3 text-left font-medium">
+                      รุ่นที่สมัคร
+                    </th>
+                    <th className="px-4 py-3 text-left font-medium">
+                      วันที่ลงทะเบียน
+                    </th>
                     <th className="px-4 py-3 text-left font-medium">สถานะ</th>
-                    <th className="px-4 py-3 text-right font-medium">การจัดการ</th>
+                    <th className="px-4 py-3 text-right font-medium">
+                      การจัดการ
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
@@ -319,13 +347,15 @@ export default async function ParticipantsPage({
                         <div className="flex items-center">
                           <Avatar className="h-8 w-8 mr-3">
                             <AvatarFallback className="text-xs bg-futsal-blue/10 text-futsal-blue">
-                              {participant.coach.user.firstName?.charAt(0) || ''}
-                              {participant.coach.user.lastName?.charAt(0) || ''}
+                              {participant.coach.user.firstName?.charAt(0) ||
+                                ""}
+                              {participant.coach.user.lastName?.charAt(0) || ""}
                             </AvatarFallback>
                           </Avatar>
                           <div>
                             <div className="font-medium text-gray-900">
-                              {participant.coach.user.firstName} {participant.coach.user.lastName}
+                              {participant.coach.user.firstName}{" "}
+                              {participant.coach.user.lastName}
                             </div>
                             <div className="text-xs text-gray-500">
                               {participant.coach.user.email}
@@ -335,59 +365,85 @@ export default async function ParticipantsPage({
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap">
                         <div>
-                          รุ่นที่ {participant.batch.batchNumber}/{participant.batch.year}
+                          รุ่นที่ {participant.batch.batchNumber}/
+                          {participant.batch.year}
                         </div>
                         <div className="text-xs text-gray-500">
-                          {formatDate(participant.batch.startDate)} - {formatDate(participant.batch.endDate)}
+                          {formatDate(participant.batch.startDate)} -{" "}
+                          {formatDate(participant.batch.endDate)}
                         </div>
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap">
-                        <div>
-                          {formatDate(participant.registeredAt)}
-                        </div>
+                        <div>{formatDate(participant.registeredAt)}</div>
                         <div className="text-xs text-gray-500">
                           {formatTime(participant.registeredAt)}
                         </div>
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap">
-                        <Badge className={
-                          participant.status === 'APPROVED' ? 'bg-green-100 text-green-800' :
-                          participant.status === 'REJECTED' ? 'bg-red-100 text-red-800' :
-                          participant.status === 'CANCELED' ? 'bg-red-100 text-red-800' :
-                          'bg-yellow-100 text-yellow-800'
-                        }>
-                          {participant.status === 'APPROVED' ? 'อนุมัติแล้ว' :
-                           participant.status === 'REJECTED' ? 'ไม่อนุมัติ' :
-                           participant.status === 'CANCELED' ? 'ยกเลิก' :
-                           'รอการอนุมัติ'}
+                        <Badge
+                          className={
+                            participant.status === "APPROVED"
+                              ? "bg-green-100 text-green-800"
+                              : participant.status === "REJECTED"
+                              ? "bg-red-100 text-red-800"
+                              : participant.status === "CANCELED"
+                              ? "bg-red-100 text-red-800"
+                              : "bg-yellow-100 text-yellow-800"
+                          }
+                        >
+                          {participant.status === "APPROVED"
+                            ? "อนุมัติแล้ว"
+                            : participant.status === "REJECTED"
+                            ? "ไม่อนุมัติ"
+                            : participant.status === "CANCELED"
+                            ? "ยกเลิก"
+                            : "รอการอนุมัติ"}
                         </Badge>
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap text-right">
                         <div className="flex justify-end space-x-2">
-                          <Link href={`/dashboard/training/participants/${participant.id}`}>
-                            <Button variant="outline" size="sm" className="text-gray-700">
+                          <Link
+                            href={`/dashboard/training/participants/${participant.id}`}
+                          >
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="text-gray-700"
+                            >
                               <FileText className="h-4 w-4 mr-1" />
                               รายละเอียด
                             </Button>
                           </Link>
-                          
-                          {participant.status === 'PENDING' && (
+
+                          {participant.status === "PENDING" && (
                             <>
-                              <form action={async () => {
-                                'use server';
-                                await approveParticipant(participant.id);
-                              }}>
-                                <Button type="submit" size="sm" className="bg-futsal-green hover:bg-futsal-green/90">
+                              <form
+                                action={async () => {
+                                  "use server";
+                                  await approveParticipant(participant.id);
+                                }}
+                              >
+                                <Button
+                                  type="submit"
+                                  size="sm"
+                                  className="bg-futsal-green hover:bg-futsal-green/90"
+                                >
                                   <CheckCircle className="h-4 w-4 mr-1" />
                                   อนุมัติ
                                 </Button>
                               </form>
-                              
-                              <form action={async () => {
-                                'use server';
-                                await rejectParticipant(participant.id);
-                              }}>
-                                <Button type="submit" size="sm" variant="destructive">
+
+                              <form
+                                action={async () => {
+                                  "use server";
+                                  await rejectParticipant(participant.id);
+                                }}
+                              >
+                                <Button
+                                  type="submit"
+                                  size="sm"
+                                  variant="destructive"
+                                >
                                   <XCircle className="h-4 w-4 mr-1" />
                                   ไม่อนุมัติ
                                 </Button>
