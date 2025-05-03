@@ -35,6 +35,7 @@ interface ParticipationWithBatch {
   batch: {
     batchNumber: number;
     year: number;
+    endDate: Date;
   };
 }
 
@@ -194,6 +195,9 @@ export default async function CoachesPage({
 
   // ดึงข้อมูลรุ่นที่เปิดรับสมัคร (ถ้ามี)
   const activeBatches = batches.filter(batch => batch.isActive);
+  
+  // วันที่ปัจจุบัน
+  const currentDate = new Date();
 
   return (
     <div className="min-h-screen">
@@ -414,69 +418,93 @@ export default async function CoachesPage({
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {coaches.map((coach) => (
-                <div key={coach.id} className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-300 border border-gray-100">
-                  <div className="p-4 border-b border-gray-100 flex items-center">
-                    <Avatar className="h-14 w-14 border-2 border-futsal-blue/20">
-                      <AvatarFallback className="bg-futsal-blue/10 text-futsal-blue text-lg font-medium">
-                        {coach.user.firstName?.charAt(0) || ''}
-                        {coach.user.lastName?.charAt(0) || ''}
-                      </AvatarFallback>
-                    </Avatar>
-                    
-                    <div className="ml-3 overflow-hidden">
-                      <h3 className="font-semibold text-futsal-navy truncate">
-                        {coach.user.firstName} {coach.user.lastName}
-                      </h3>
+              {coaches.map((coach) => {
+                // ตรวจสอบว่ามีการอบรมที่กำลังดำเนินการอยู่หรือไม่
+                const hasActiveTraining = coach.batchParticipations.some(
+                  participation => new Date(participation.batch.endDate) > currentDate
+                );
+                
+                return (
+                  <div key={coach.id} className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-300 border border-gray-100">
+                    <div className="p-4 border-b border-gray-100 flex items-center">
+                      <Avatar className="h-14 w-14 border-2 border-futsal-blue/20">
+                        <AvatarFallback className="bg-futsal-blue/10 text-futsal-blue text-lg font-medium">
+                          {coach.user.firstName?.charAt(0) || ''}
+                          {coach.user.lastName?.charAt(0) || ''}
+                        </AvatarFallback>
+                      </Avatar>
                       
-                      <div className="flex items-center text-sm text-gray-500 mt-1">
-                        <MapPin className="h-3.5 w-3.5 mr-1 flex-shrink-0" />
-                        <span className="truncate">{coach.location?.province || 'ไม่ระบุจังหวัด'}</span>
+                      <div className="ml-3 overflow-hidden">
+                        <h3 className="font-semibold text-futsal-navy truncate">
+                          {coach.user.firstName} {coach.user.lastName}
+                        </h3>
+                        
+                        <div className="flex items-center text-sm text-gray-500 mt-1">
+                          <MapPin className="h-3.5 w-3.5 mr-1 flex-shrink-0" />
+                          <span className="truncate">{coach.location?.province || 'ไม่ระบุจังหวัด'}</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="p-4 pt-3">
+                      <div className="grid grid-cols-2 gap-3 mb-4">
+                        <div className="bg-gray-50 rounded p-2 text-center">
+                          <div className="text-sm text-gray-500 mb-1">ประสบการณ์</div>
+                          <div className="font-semibold text-futsal-navy">{coach.coachExperience} ปี</div>
+                        </div>
+                        
+                        <div className="bg-gray-50 rounded p-2 text-center">
+                          <div className="text-sm text-gray-500 mb-1">เข้าร่วมอบรม</div>
+                          <div className="font-semibold text-futsal-navy">{coach.batchParticipations.length} ครั้ง</div>
+                        </div>
+                      </div>
+                      
+                      {coach.teamName && (
+                        <div className="flex items-center mb-3 text-sm">
+                          <div className="font-medium text-gray-700 mr-2">ทีม:</div>
+                          <div className="text-futsal-blue">{coach.teamName}</div>
+                        </div>
+                      )}
+                      
+                      <div className="mb-3">
+                        {hasActiveTraining ? (
+                          <div className="font-medium text-sm mb-1.5 flex items-center">
+                            <span className="text-futsal-orange">อยู่ระหว่างการอบรม</span>
+                            <span className="ml-2 h-2 w-2 rounded-full bg-futsal-orange animate-pulse"></span>
+                          </div>
+                        ) : (
+                          <div className="font-medium text-sm text-gray-700 mb-1.5">การอบรมที่ผ่านมา:</div>
+                        )}
+                        
+                        <div className="flex flex-wrap gap-1.5">
+                          {coach.batchParticipations.map((participation) => {
+                            const isActive = new Date(participation.batch.endDate) > currentDate;
+                            
+                            return (
+                              <Badge
+                                key={participation.id}
+                                className={`${isActive 
+                                  ? "bg-futsal-orange/10 hover:bg-futsal-orange/20 text-futsal-orange" 
+                                  : "bg-futsal-navy/10 hover:bg-futsal-navy/20 text-futsal-navy"
+                                } border-none font-normal`}
+                              >
+                                {isActive && (
+                                  <span className="inline-block h-2 w-2 rounded-full bg-futsal-orange animate-pulse mr-1.5"></span>
+                                )}
+                                รุ่น {participation.batch.batchNumber}/{participation.batch.year}
+                              </Badge>
+                            );
+                          })}
+                        </div>
                       </div>
                     </div>
                   </div>
-                  
-                  <div className="p-4 pt-3">
-                    <div className="grid grid-cols-2 gap-3 mb-4">
-                      <div className="bg-gray-50 rounded p-2 text-center">
-                        <div className="text-sm text-gray-500 mb-1">ประสบการณ์</div>
-                        <div className="font-semibold text-futsal-navy">{coach.coachExperience} ปี</div>
-                      </div>
-                      
-                      <div className="bg-gray-50 rounded p-2 text-center">
-                        <div className="text-sm text-gray-500 mb-1">เข้าร่วมอบรม</div>
-                        <div className="font-semibold text-futsal-navy">{coach.batchParticipations.length} ครั้ง</div>
-                      </div>
-                    </div>
-                    
-                    {coach.teamName && (
-                      <div className="flex items-center mb-3 text-sm">
-                        <div className="font-medium text-gray-700 mr-2">ทีม:</div>
-                        <div className="text-futsal-blue">{coach.teamName}</div>
-                      </div>
-                    )}
-                    
-                    <div className="mb-3">
-                      <div className="font-medium text-sm text-gray-700 mb-1.5">การอบรมที่ผ่านมา:</div>
-                      <div className="flex flex-wrap gap-1.5">
-                        {coach.batchParticipations.map((participation) => (
-                          <Badge
-                            key={participation.id}
-                            className="bg-futsal-navy/10 hover:bg-futsal-navy/20 text-futsal-navy border-none font-normal"
-                          >
-                            รุ่น {participation.batch.batchNumber}/{participation.batch.year}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </>
         )}
       </section>
-      
     </div>
   );
 }

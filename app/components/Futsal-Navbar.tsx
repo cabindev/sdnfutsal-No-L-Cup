@@ -103,7 +103,7 @@ const Navbar = () => {
     },
     { 
       name: "ติดต่อ", 
-      href: "/#contact", 
+      href: "/about/contact", 
       icon: <Phone size={20} />
     },
   ];
