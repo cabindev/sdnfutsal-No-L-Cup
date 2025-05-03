@@ -153,7 +153,7 @@ export default function Home() {
       document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.removeEventListener('click', handleAnchorClick as EventListener);
       });
-    };ฟ
+    };
   }, []);
   
   return (
