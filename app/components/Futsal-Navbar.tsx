@@ -92,8 +92,8 @@ const Navbar = () => {
       icon: <Trophy size={20} />
     },
     { 
-      name: "ตารางฝึกซ้อม", 
-      href: "/#training", 
+      name: "ตารางอบรม", 
+      href: "/schedule", 
       icon: <Calendar size={20} />
     },
     { 
@@ -136,6 +136,13 @@ const Navbar = () => {
   if (pathname?.startsWith('/auth')) {
     return null;
   }
+
+  // สำหรับแก้ปัญหา hydration mismatch ในเรื่องสีข้อความ
+  // ตอน SSR render ไม่ต้องกำหนดสีเลย แล้วค่อยมากำหนดตอนทำงานบน client (useEffect)
+  const textColor = isClient 
+    ? (isScrolled ? "text-white" : "text-white") 
+    : "";
+
   return (
     <header 
       className={cn(
@@ -171,11 +178,8 @@ const Navbar = () => {
               </div>
               <div className="relative">
                 <div className="flex items-center">
-                  <span className={cn(
-                    "font-prompt font-extrabold text-2xl transition-colors duration-300",
-                    "text-white drop-shadow-md"
-                  )}>SDN </span>
-                  <span className="font-prompt font-extrabold text-2xl text-amber-500 text-futsal-gold drop-shadow-md ml-1">FUTSAL No L CUP</span>
+                  <span className="font-prompt font-extrabold text-2xl text-white drop-shadow-md">SDN </span>
+                  <span className="font-prompt font-extrabold text-2xl text-futsal-gold drop-shadow-md ml-1">FUTSAL No L CUP</span>
                 </div>
                 <div className="absolute -bottom-1 left-0 h-0.5 bg-futsal-orange w-0 group-hover:w-full transition-all duration-500"></div>
               </div>
@@ -191,7 +195,7 @@ const Navbar = () => {
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1, duration: 0.3 }}
-                className="group relative px-4 py-2 font-prompt font-medium text-base text-white hover:text-futsal-gold transition-colors duration-300 flex items-center gap-2 overflow-hidden rounded-lg"
+                className={`group relative px-4 py-2 font-prompt font-medium text-base hover:text-futsal-gold transition-colors duration-300 flex items-center gap-2 overflow-hidden rounded-lg ${textColor}`}
               >
                 <span className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg"></span>
                 <span className="text-futsal-gold group-hover:scale-125 transition-transform duration-300">
@@ -215,7 +219,7 @@ const Navbar = () => {
               className="flex items-center gap-2 text-white bg-white/5 px-3 py-1.5 rounded-full"
             >
               <Phone size={16} className="text-futsal-gold" />
-              <span className="font-medium text-sm">Big : 095-914-1297</span>
+              <span className="font-medium text-white text-sm">Big : 095-914-1297</span>
             </motion.div>
 
             {/* Authenticated User Profile */}
@@ -367,96 +371,6 @@ const Navbar = () => {
                           </motion.a>
                         ))}
                       </div>
-                      
-                      {/* Profile or Authentication */}
-                      {isClient && status === "authenticated" && session ? (
-                        <div className="flex flex-col">
-                          <motion.div 
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.3 }}
-                            className="p-4 bg-white/5 rounded-lg mb-4 border border-white/10"
-                          >
-                            <div className="flex items-center gap-3 mb-3">
-                              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-futsal-gold to-futsal-orange flex items-center justify-center text-white overflow-hidden">
-                                {session.user?.image ? (
-                                  <img
-                                    src={session.user.image}
-                                    alt="Profile"
-                                    className="w-full h-full object-cover"
-                                  />
-                                ) : (
-                                  <User size={24} />
-                                )}
-                              </div>
-                              <div>
-                                <p className="text-white font-medium">
-                                  {session.user?.firstName} {session.user?.lastName}
-                                </p>
-                                <p className="text-white/70 text-sm truncate">
-                                  {session.user?.email}
-                                </p>
-                              </div>
-                            </div>
-                            
-                            <div className="grid grid-cols-2 gap-2">
-                              <Link
-                                href="/dashboard/profile"
-                                className="flex items-center justify-center gap-2 py-2 text-sm text-white bg-white/10 hover:bg-white/20 rounded-lg transition-colors"
-                                onClick={() => setIsMenuOpen(false)}
-                              >
-                                <User size={16} />
-                                โปรไฟล์
-                              </Link>
-                              
-                              <button
-                                onClick={() => {
-                                  handleSignOut();
-                                  setIsMenuOpen(false);
-                                }}
-                                className="flex items-center justify-center gap-2 py-2 text-sm text-white bg-red-500/20 hover:bg-red-500/30 rounded-lg transition-colors"
-                              >
-                                <LogOut size={16} />
-                                ออกจากระบบ
-                              </button>
-                            </div>
-                          </motion.div>
-                        </div>
-                      ) : isClient && status === "unauthenticated" ? (
-                        <motion.div
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.4 }}
-                          className="flex flex-col gap-3"
-                        >
-                          <Link
-                            href="/auth/signin"
-                            onClick={() => setIsMenuOpen(false)}
-                            className="w-full py-3 bg-white/10 hover:bg-white/20 text-white font-medium rounded-lg border border-white/10 flex items-center justify-center"
-                          >
-                            เข้าสู่ระบบ
-                          </Link>
-                          
-                          <Link
-                            href="/auth/signup"
-                            onClick={() => setIsMenuOpen(false)}
-                            className="w-full py-3 bg-gradient-to-r from-futsal-gold to-futsal-orange hover:from-futsal-orange hover:to-futsal-gold text-white font-medium rounded-lg flex items-center justify-center"
-                          >
-                            สมัครสมาชิก
-                          </Link>
-                        </motion.div>
-                      ) : null}
-                      
-                      {/* Contact */}
-                      <motion.div 
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.5 }}
-                        className="mt-6 pt-6 border-t border-white/10 flex items-center justify-center gap-2 text-white"
-                      >
-                        <Phone size={18} className="text-futsal-gold" />
-                        <span className="font-medium">062-123-4567</span>
-                      </motion.div>
                     </div>
                   </div>
                 </motion.div>

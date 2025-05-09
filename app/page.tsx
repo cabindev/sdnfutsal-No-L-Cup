@@ -4,7 +4,7 @@ import { useState, useEffect, Suspense } from 'react';
 import FutsalNavbar from "./components/Futsal-Navbar";
 import Hero from "./components/Hero";
 import Gallery from "./components/Gallery";
-import TrainingInfo from "./components/TrainingInfo";
+import Schedule from './components/Schedule';
 import TrainingBatchRegistration from "./components/TrainingBatchRegistration";
 import Footer from "./components/Footer";
 import ScrollToTopButton from "./components/ScrollToTopButton";
@@ -172,8 +172,8 @@ export default function Home() {
               <TrainingBatchRegistration />
             </Suspense>
             
-            {/* <TrainingInfo />
-            <Gallery /> */}
+            <Schedule /> 
+            {/* <Gallery /> */}
           </div>
           <LogoShowcase />
         </main>
