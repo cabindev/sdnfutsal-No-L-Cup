@@ -16,11 +16,12 @@ export default function DashboardClient({ user, children }: DashboardClientProps
 
   return (
     <div className="flex h-screen overflow-hidden bg-gray-50">
+      {/* ลบปุ่ม hamburger ออกจากตรงนี้ เพราะได้ย้ายไปที่ TopNav แล้ว */}
+      
       <Sidebar user={user} />
       
       <div className={cn(
         "flex-1 flex flex-col transition-all duration-300 w-full",
-        // เปลี่ยนเป็นใช้ margin left เฉพาะบนหน้าจอใหญ่
         sidebarCollapsed ? "lg:ml-16" : "lg:ml-64"
       )}>
         <TopNav user={user} />

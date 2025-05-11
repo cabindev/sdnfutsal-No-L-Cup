@@ -1,3 +1,4 @@
+// app/dashboard/components/TopNav.tsx
 'use client'
 
 import { useState, useEffect } from "react"
@@ -10,12 +11,14 @@ import {
   Bell, 
   User,
   LogOut,
-  Menu,
   Settings,
   Home,
   Award,
   GraduationCap,
-  ChevronDown
+  ChevronDown,
+  Search,
+  Menu,
+  X
 } from "lucide-react"
 
 interface TopNavProps {
@@ -24,7 +27,7 @@ interface TopNavProps {
 
 export default function TopNav({ user }: TopNavProps) {
   const pathname = usePathname()
-  const { toggleMobileSidebar, sidebarCollapsed } = useDashboard()
+  const { sidebarCollapsed, isMobileSidebarOpen, toggleMobileSidebar } = useDashboard()
   const [showProfileDropdown, setShowProfileDropdown] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   
@@ -64,7 +67,7 @@ export default function TopNav({ user }: TopNavProps) {
 
   // หัวข้อหน้าปัจจุบัน
   const currentPageTitle = 
-    pathname === '/dashboard' ? 'แดชบอร์ด' :
+    pathname === '/dashboard' ? 'ภาพรวม' :
     pathname === '/dashboard/coach' ? 'จัดการโค้ชฟุตซอล' :
     pathname.startsWith('/dashboard/coach/training') ? 'การอบรม' :
     pathname.startsWith('/dashboard/training') ? 'การอบรม' :
@@ -72,74 +75,100 @@ export default function TopNav({ user }: TopNavProps) {
     pathname.startsWith('/dashboard/profile') ? 'โปรไฟล์ของฉัน' : '';
 
   return (
-    <header className={cn(
-      "sticky top-0 z-20 w-full bg-white transition-shadow duration-300",
-      scrolled ? "shadow-md" : "shadow-sm",
-      sidebarCollapsed ? "lg:pl-20" : "lg:pl-72"
-    )}>
-      <div className="flex items-center justify-between h-16 px-4 border-b border-gray-100">
-        {/* ส่วนซ้าย: ปุ่ม hamburger และ navigation tabs */}
-        <div className="flex items-center space-x-1">
-          {/* ปุ่ม hamburger สำหรับมือถือ */}
+    <header
+      className={cn(
+        "sticky top-0 z-20 w-full bg-white transition-shadow duration-300",
+        scrolled ? "shadow-md" : "shadow-sm",
+        "pl-0" // ไม่ต้องใส่ padding-left แล้ว เพราะจะซ้อนกับปุ่ม hamburger
+      )}
+    >
+      <div className="flex items-center justify-between h-16 px-4 lg:px-6 border-b border-gray-100">
+        {/* ส่วนซ้าย */}
+        <div className="flex items-center">
+          {/* เพิ่มปุ่ม hamburger ใน TopNav แทน - แก้ไขใหม่ */}
           <button
-            onClick={() => toggleMobileSidebar(true)}
-            className="lg:hidden p-2 rounded-md text-gray-500 hover:bg-gray-100 mr-1"
-            aria-label="เปิดเมนู"
+            className="w-10 h-10 flex items-center justify-center text-gray-600 hover:text-gray-900 lg:hidden mr-2"
+            onClick={() => {
+              console.log("TopNav hamburger clicked!");
+              toggleMobileSidebar(!isMobileSidebarOpen);
+            }}
+            aria-label="เปิด/ปิดเมนู"
           >
-            <Menu className="h-5 w-5" />
+            {isMobileSidebarOpen ? (
+              <X className="h-5 w-5" />
+            ) : (
+              <Menu className="h-5 w-5" />
+            )}
           </button>
-
-          {/* หัวข้อหน้าปัจจุบัน (แสดงเฉพาะบนมือถือ) */}
-          <h1 className="text-lg font-bold text-futsal-navy mr-2 md:hidden">
+          
+          {/* หัวข้อหน้าปัจจุบัน */}
+          <h1 className="text-lg font-medium text-gray-900 md:hidden ml-3">
             {currentPageTitle}
           </h1>
-
+          
           {/* Navigation tabs (ซ่อนบนมือถือ) */}
-          <div className="hidden md:flex items-center">
-            {navTabs.map(tab => {
+          <div className="hidden md:flex items-center space-x-1">
+            {navTabs.map((tab) => {
               const Icon = tab.icon;
-              const isActive = 
-                tab.href === '/dashboard' 
-                  ? pathname === '/dashboard'
+              const isActive =
+                tab.href === "/dashboard"
+                  ? pathname === "/dashboard"
                   : pathname?.startsWith(tab.href);
-                  
+
               return (
                 <Link
                   key={tab.href}
                   href={tab.href}
                   className={cn(
-                    "inline-flex items-center px-3 py-2 text-sm font-medium mx-1 rounded-md transition-all",
+                    "inline-flex items-center px-3 py-2 text-sm font-medium rounded-md transition-all",
                     isActive
                       ? "bg-futsal-orange/10 text-futsal-orange"
                       : "text-gray-600 hover:bg-gray-100 hover:text-gray-800"
                   )}
                 >
-                  <Icon className={cn("mr-1.5 h-4 w-4", isActive ? "text-futsal-orange" : "text-gray-500")} />
+                  <Icon
+                    className={cn(
+                      "mr-1.5 h-4 w-4",
+                      isActive ? "text-futsal-orange" : "text-gray-500"
+                    )}
+                  />
                   {tab.text}
                 </Link>
-              )
+              );
             })}
           </div>
         </div>
-        
-        {/* ส่วนขวา: Notification และ User menu */}
-        <div className="flex items-center space-x-2">
+
+        {/* ส่วนขวา */}
+        <div className="flex items-center space-x-3">
+          {/* ช่องค้นหา (ซ่อนบนมือถือ) */}
+          <div className="hidden md:block relative">
+            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+              <Search className="h-4 w-4 text-gray-400" />
+            </div>
+            <input
+              type="text"
+              placeholder="ค้นหา..."
+              className="py-2 pl-10 pr-4 block w-60 bg-gray-50 border border-gray-300 rounded-lg text-sm focus:ring-futsal-orange focus:border-futsal-orange"
+            />
+          </div>
+          
           {/* ปุ่มการแจ้งเตือน */}
-          <button 
-            className="p-2 text-gray-500 hover:bg-gray-100 rounded-full relative focus:outline-none"
+          <button
+            className="p-2 text-gray-500 hover:bg-gray-100 rounded-full relative focus:outline-none focus:ring-2 focus:ring-futsal-orange"
             aria-label="การแจ้งเตือน"
           >
             <Bell className="h-5 w-5" />
             <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-futsal-orange rounded-full border-2 border-white"></span>
           </button>
-          
+
           {/* เมนูผู้ใช้ */}
           <div className="relative profile-menu">
-            <button 
+            <button
               className="flex items-center focus:outline-none gap-2 p-1.5 hover:bg-gray-100 rounded-lg"
               onClick={(e) => {
-                e.stopPropagation()
-                setShowProfileDropdown(!showProfileDropdown)
+                e.stopPropagation();
+                setShowProfileDropdown(!showProfileDropdown);
               }}
               aria-label="เมนูผู้ใช้"
             >
@@ -151,12 +180,12 @@ export default function TopNav({ user }: TopNavProps) {
                   {user?.firstName || user?.name || ""} {user?.lastName || ""}
                 </p>
                 <p className="text-xs text-gray-500 truncate max-w-[150px]">
-                  {user?.role === 'ADMIN' ? 'ผู้ดูแลระบบ' : 'ผู้ใช้งาน'}
+                  {user?.role === "ADMIN" ? "ผู้ดูแลระบบ" : "ผู้ใช้งาน"}
                 </p>
               </div>
               <ChevronDown className="h-4 w-4 text-gray-500 hidden md:block" />
             </button>
-            
+
             {showProfileDropdown && (
               <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg py-2 z-50 border border-gray-200 animate-fadeDown">
                 <div className="px-4 py-3 border-b border-gray-100">
@@ -167,12 +196,12 @@ export default function TopNav({ user }: TopNavProps) {
                     {user?.email || ""}
                   </p>
                   <span className="text-xs mt-1 bg-futsal-green/20 text-futsal-green px-2 py-0.5 rounded-full inline-block">
-                    {user?.role === 'ADMIN' ? 'ผู้ดูแลระบบ' : 'ผู้ใช้งาน'}
+                    {user?.role === "ADMIN" ? "ผู้ดูแลระบบ" : "ผู้ใช้งาน"}
                   </span>
                 </div>
-                
-                <Link 
-                  href="/dashboard/profile" 
+
+                <Link
+                  href="/dashboard/profile"
                   className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                   onClick={() => setShowProfileDropdown(false)}
                 >
@@ -181,8 +210,8 @@ export default function TopNav({ user }: TopNavProps) {
                     โปรไฟล์ของฉัน
                   </div>
                 </Link>
-                <Link 
-                  href="/dashboard/settings/profile" 
+                <Link
+                  href="/dashboard/settings/profile"
                   className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                   onClick={() => setShowProfileDropdown(false)}
                 >
@@ -192,9 +221,9 @@ export default function TopNav({ user }: TopNavProps) {
                   </div>
                 </Link>
                 <div className="border-t border-gray-100 my-1"></div>
-                <button 
+                <button
                   className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                  onClick={() => signOut({ callbackUrl: '/' })}
+                  onClick={() => signOut({ callbackUrl: "/" })}
                 >
                   <div className="flex items-center">
                     <LogOut className="h-4 w-4 mr-2 text-red-500" />
@@ -207,5 +236,5 @@ export default function TopNav({ user }: TopNavProps) {
         </div>
       </div>
     </header>
-  )
+  );
 }

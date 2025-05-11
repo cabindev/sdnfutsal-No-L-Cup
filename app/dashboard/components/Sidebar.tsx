@@ -53,7 +53,7 @@ export default function Sidebar({ user }: SidebarProps) {
     if (isMobileSidebarOpen) {
       toggleMobileSidebar(false);
     }
-  }, [pathname, toggleMobileSidebar, isMobileSidebarOpen]);
+  }, [pathname]);  // แก้ไขโดยลบ toggleMobileSidebar จาก dependencies
 
   const mainMenuItems = [
     {
@@ -136,10 +136,10 @@ export default function Sidebar({ user }: SidebarProps) {
 
   return (
     <>
-      {/* Overlay สำหรับกดปิด sidebar บนมือถือ */}
+      {/* Overlay สำหรับกดปิด sidebar บนมือถือ - แก้ไข z-index */}
       {isMobileSidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-30 lg:hidden backdrop-blur-sm"
+          className="fixed inset-0 bg-black/50 z-10 lg:hidden backdrop-blur-sm" // ลด z-index จาก 30 เป็น 10
           onClick={() => toggleMobileSidebar(false)}
           aria-hidden="true"
         />
@@ -147,7 +147,7 @@ export default function Sidebar({ user }: SidebarProps) {
 
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-40 flex flex-col bg-futsal-navy text-white transition-all duration-300 shadow-xl",
+          "fixed inset-y-0 left-0 z-40 flex flex-col bg-futsal-navy text-white transition-all duration-300 shadow-xl", // ค่า z-index ยังเป็น 40
           sidebarCollapsed ? "w-20" : "w-72",
           // ซ่อน sidebar บนมือถือและแสดงเมื่อเปิดเท่านั้น
           "lg:translate-x-0",
@@ -483,63 +483,63 @@ export default function Sidebar({ user }: SidebarProps) {
                         href={subMenu.href}
                         className={`flex justify-center p-2 my-1 transition-all duration-200 rounded-lg ${
                           isSubActive
-                            ? "bg-futsal-gold/20 text-futsal-gold"
-                            : "text-white/70 hover:bg-white/10 hover:text-white"
-                        }`}
-                        title={subMenu.name}
-                      >
-                        <Icon className="w-5 h-5" />
-                      </Link>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
+                          ? "bg-futsal-gold/20 text-futsal-gold"
+                          : "text-white/70 hover:bg-white/10 hover:text-white"
+                      }`}
+                      title={subMenu.name}
+                    >
+                      <Icon className="w-5 h-5" />
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
+      </div>
 
-        {/* User info & logout */}
-        <div className="border-t border-white/10 p-4">
-          <div
-            className={cn(
-              "flex items-center bg-white/5 p-3 rounded-lg",
-              sidebarCollapsed && "justify-center"
-            )}
-          >
-            <div className="flex-shrink-0">
-              <div className="h-10 w-10 rounded-full bg-futsal-orange flex items-center justify-center shadow-futsal">
-                <span className="text-sm font-medium text-white">
-                  {user?.firstName?.charAt(0) || user?.name?.charAt(0) || "U"}
-                </span>
-              </div>
+      {/* User info & logout */}
+      <div className="border-t border-white/10 p-4">
+        <div
+          className={cn(
+            "flex items-center bg-white/5 p-3 rounded-lg",
+            sidebarCollapsed && "justify-center"
+          )}
+        >
+          <div className="flex-shrink-0">
+            <div className="h-10 w-10 rounded-full bg-futsal-orange flex items-center justify-center shadow-futsal">
+              <span className="text-sm font-medium text-white">
+                {user?.firstName?.charAt(0) || user?.name?.charAt(0) || "U"}
+              </span>
             </div>
-            {!sidebarCollapsed && (
-              <div className="ml-3">
-                <p className="text-sm font-medium text-white">
-                  {user?.firstName || user?.name || ""} {user?.lastName || ""}
-                </p>
-                <p className="text-xs text-white/70">{user?.email || ""}</p>
-                <p className="text-xs mt-1 bg-futsal-green/20 text-futsal-green inline-block px-2 py-0.5 rounded-full">
-                  {user?.role === "ADMIN" ? "ผู้ดูแลระบบ" : "ผู้ใช้งาน"}
-                </p>
-              </div>
-            )}
           </div>
-          <button
-            onClick={() => signOut({ callbackUrl: "/" })}
-            className={cn(
-              "mt-4 flex items-center p-3 rounded-lg w-full text-white/80 hover:bg-futsal-orange hover:text-white transition-all duration-200",
-              sidebarCollapsed && "justify-center"
-            )}
-            aria-label="ออกจากระบบ"
-          >
-            <LogOut className="w-5 h-5 flex-shrink-0" />
-            {!sidebarCollapsed && (
-              <span className="ml-3 font-medium">ออกจากระบบ</span>
-            )}
-          </button>
+          {!sidebarCollapsed && (
+            <div className="ml-3">
+              <p className="text-sm font-medium text-white">
+                {user?.firstName || user?.name || ""} {user?.lastName || ""}
+              </p>
+              <p className="text-xs text-white/70">{user?.email || ""}</p>
+              <p className="text-xs mt-1 bg-futsal-green/20 text-futsal-green inline-block px-2 py-0.5 rounded-full">
+                {user?.role === "ADMIN" ? "ผู้ดูแลระบบ" : "ผู้ใช้งาน"}
+              </p>
+            </div>
+          )}
         </div>
-      </aside>
-    </>
-  );
+        <button
+          onClick={() => signOut({ callbackUrl: "/" })}
+          className={cn(
+            "mt-4 flex items-center p-3 rounded-lg w-full text-white/80 hover:bg-futsal-orange hover:text-white transition-all duration-200",
+            sidebarCollapsed && "justify-center"
+          )}
+          aria-label="ออกจากระบบ"
+        >
+          <LogOut className="w-5 h-5 flex-shrink-0" />
+          {!sidebarCollapsed && (
+            <span className="ml-3 font-medium">ออกจากระบบ</span>
+          )}
+        </button>
+      </div>
+    </aside>
+  </>
+);
 }
