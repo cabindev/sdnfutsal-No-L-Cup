@@ -66,12 +66,13 @@ const Hero = () => {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="absolute inset-0"
+            className="absolute inset-0 flex flex-col items-center justify-center"
           >
+            {/* รูปคนโค้ช */}
             <Image
-              src="/img/C2.png"
+              src="/img/C4.png"
               alt="THE COACH"
-              className="object-cover"
+              className="object-contain w-full h-full"
               priority
               sizes="100vw"
               fill
@@ -79,9 +80,34 @@ const Hero = () => {
                 filter: "drop-shadow(0 0 15px rgba(0, 0, 0, 0.5))",
               }}
             />
+            
+            {/* โลโก้ THE COACH สำหรับมือถือ - ตำแหน่งด้านล่างของรูปคน */}
+            <motion.div
+              className="absolute bottom-[20%] left-0 right-0 flex justify-center items-center z-20"
+              initial={{ y: 50, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 1, delay: 1.5 }}
+            >
+              <motion.div
+                className="max-w-[200px] w-full"
+                whileHover={{ scale: 1.05 }}
+                transition={{ type: "spring", stiffness: 300 }}
+              >
+                <Image
+                  src="/img/the coach.png"
+                  alt="THE COACH"
+                  width={300}
+                  height={150}
+                  className="w-full h-auto object-contain"
+                  style={{
+                    filter: "drop-shadow(0 0 10px rgba(238, 105, 37, 0.7))",
+                  }}
+                />
+              </motion.div>
+            </motion.div>
           </motion.div>
         ) : (
-          // สำหรับเดสก์ท็อป ใช้ COACHs.svg
+          // สำหรับเดสก์ท็อป ใช้ COACH2025.png
           <motion.div
             initial={{ y: 100, opacity: 0 }}
             animate={{ y: isLoaded ? 0 : 100, opacity: isLoaded ? 1 : 0 }}

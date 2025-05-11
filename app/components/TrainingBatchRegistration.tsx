@@ -216,15 +216,7 @@ export default function TrainingBatchRegistration() {
           </div>
         )}
         
-        <div className="text-center mt-12">
-          <p className="text-gray-600 mb-4">มีข้อสงสัยเพิ่มเติม? ติดต่อเราได้ที่</p>
-          <Link 
-            href="/contact" 
-            className="text-futsal-orange hover:text-futsal-orange-dark underline font-medium"
-          >
-            ติดต่อสอบถาม
-          </Link>
-        </div>
+
       </div>
     </section>
   );
