@@ -96,7 +96,7 @@ const Hero = () => {
               whileHover={{ scale: 1.02 }}
             >
               <Image
-                src="/img/TheCoach.png"
+                src="/img/Coach2.webp"
                 alt="THE COACH"
                 width={1920}
                 height={1080}
