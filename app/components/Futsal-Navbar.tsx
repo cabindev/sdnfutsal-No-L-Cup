@@ -5,13 +5,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { 
-  Menu, X, User, LogOut, Star, Home, Calendar, Trophy, 
+  Menu, X, User, LogOut, Home, Calendar, Trophy, 
   Image as ImageIcon, Phone, LayoutDashboard, ChevronDown, Settings 
 } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "../lib/utils";
-
 
 // Type definitions
 interface NavItem {
@@ -74,6 +73,7 @@ const Navbar = () => {
       await signOut({ redirect: false });
       router.push('/');
       setIsProfileOpen(false);
+      setIsMenuOpen(false);
     } catch (error) {
       console.error('Logout error:', error);
     }
@@ -154,32 +154,30 @@ const Navbar = () => {
     >
       <div className="container mx-auto flex items-center justify-between px-4">
         <nav className="flex items-center justify-between w-full">
-          {/* Logo Section */}
-          <Link href="/" className="flex items-center gap-3 group">
-            <div className="relative flex items-center gap-2 z-10">
-              <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-white/20 shadow-lg transition-transform duration-300 group-hover:scale-105">
-                <div className="absolute inset-0 bg-gradient-to-r from-futsal-gold/20 to-futsal-orange/20 group-hover:opacity-100 opacity-0 transition-opacity duration-300"></div>
-                {isScrolled ? (
-                  <img 
-                    src="/img/sdnfutsal.png" 
-                    alt="SDN Futsal Logo" 
-                    className="w-full h-full object-cover p-1"
-                  />
-                ) : (
-                  <motion.img 
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.3 }}
-                    src="/img/sdnfutsal.png" 
-                    alt="SDN Futsal Logo" 
-                    className="w-full h-full object-cover p-1"
-                  />
-                )}
-              </div>
+          {/* Logo Section - ปรับให้แสดงแค่สิ่งจำเป็นบนมือถือ */}
+          <Link href="/" className="flex items-center gap-3 group z-10">
+            <div className="relative flex items-center gap-2">
+              {/* ลดขนาดของโลโก้บนมือถือ */}
+              {isScrolled ? (
+                <img 
+                  src="/img/sdnfutsal.png" 
+                  alt="SDN Futsal Logo" 
+                  className="w-10 h-10 md:w-12 md:h-12 object-cover p-1"
+                />
+              ) : (
+                <motion.img 
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.3 }}
+                  src="/img/sdnfutsal.png" 
+                  alt="SDN Futsal Logo" 
+                  className="w-10 h-10 md:w-12 md:h-12 object-cover p-1"
+                />
+              )}
               <div className="relative">
                 <div className="flex items-center">
-                  <span className="font-prompt font-extrabold text-2xl text-white drop-shadow-md">SDN </span>
-                  <span className="font-prompt font-extrabold text-2xl text-futsal-gold drop-shadow-md ml-1">FUTSAL No L CUP</span>
+                  <span className="font-prompt font-extrabold text-xl md:text-2xl text-white drop-shadow-md">SDN </span>
+                  <span className="font-prompt font-extrabold text-xl md:text-2xl text-futsal-gold drop-shadow-md ml-1">FUTSAL No L CUP</span>
                 </div>
                 <div className="absolute -bottom-1 left-0 h-0.5 bg-futsal-orange w-0 group-hover:w-full transition-all duration-500"></div>
               </div>
@@ -278,15 +276,6 @@ const Navbar = () => {
                           <User className="mr-3 h-4 w-4" />
                           โปรไฟล์
                         </Link>
-                        
-                        <Link
-                          href="/dashboard/settings"
-                          className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-futsal-gold/10 hover:text-futsal-gold"
-                          onClick={() => setIsProfileOpen(false)}
-                        >
-                          <Settings className="mr-3 h-4 w-4" />
-                          ตั้งค่า
-                        </Link>
                       </div>
                       
                       <div className="py-2 border-t border-gray-100">
@@ -303,80 +292,146 @@ const Navbar = () => {
                 </AnimatePresence>
               </div>
             ) : isClient && status === "unauthenticated" ? (
-              /* Sign In Button */
+              /* เพิ่มปุ่ม Sign In กลับมา */
               <motion.div 
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.6, duration: 0.3 }}
-                className="relative"
               >
-
                 <Link 
                   href="/auth/signin"
-                  className="inline-flex items-center justify-center gap-1 px-4 py-2 bg-gradient-to-r from-futsal-gold to-futsal-orange hover:from-futsal-orange hover:to-futsal-gold text-white font-medium transition-all duration-500 shadow-lg hover:shadow-futsal-gold/20 rounded-md"
+                  className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-futsal-gold to-futsal-orange hover:from-futsal-orange hover:to-futsal-gold text-white font-medium transition-all duration-300 shadow-lg hover:shadow-futsal-gold/20 rounded-md"
                 >
-                  <Star size={14} />
-                  เข้าสู่ระบบ
+                  <User size={16} className="text-white" />
+                  <span>เข้าสู่ระบบ</span>
                 </Link>
               </motion.div>
             ) : null}
           </div>
 
-          {/* Mobile Menu Button */}
+          {/* Mobile Menu Button - แสดงเฉพาะปุ่ม Hamburger */}
           <div className="md:hidden" ref={menuRef}>
             <motion.button 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.5 }}
-              className="w-10 h-10 flex items-center justify-center rounded-full bg-white/10 text-white shadow-md backdrop-blur-sm border border-white/20" 
+              className="text-white p-2" 
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               aria-label="Toggle navigation menu"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
+              {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </motion.button>
-
-            {/* Mobile Navigation */}
-            <AnimatePresence>
-              {isMenuOpen && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                  transition={{ duration: 0.3 }}
-                  className="fixed inset-0 z-[1000] mt-16 bg-[#2c2f72]/95 backdrop-blur-md overflow-auto"
-                >
-                  <div className="container mx-auto p-4">
-                    <div className="flex flex-col">
-                      <div className="py-2 mb-3 border-b border-white/10">
-                        <p className="text-xs font-medium text-white/50 uppercase tracking-wider">เมนูหลัก</p>
-                      </div>
-                      
-                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
-                        {allNavItems.filter(shouldShowNavItem).map((link, index) => (
-                          <motion.a
-                            key={link.name}
-                            href={link.href}
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: index * 0.05 + 0.1 }}
-                            className="flex flex-col items-center p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 transition-colors"
-                            onClick={() => setIsMenuOpen(false)}
-                          >
-                            <span className="text-futsal-gold mb-2 p-2 bg-white/5 rounded-full">
-                              {link.icon}
-                            </span>
-                            <span className="text-white text-sm">{link.name}</span>
-                          </motion.a>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
           </div>
+
+          {/* Mobile Navigation */}
+          <AnimatePresence>
+            {isMenuOpen && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.3 }}
+                className="fixed inset-0 z-[1000] mt-16 bg-[#2c2f72]/95 backdrop-blur-md overflow-auto"
+              >
+                <div className="container mx-auto p-4">
+                  <div className="flex flex-col">
+                    <div className="py-2 mb-3 border-b border-white/10">
+                      <p className="text-xs font-medium text-white/50 uppercase tracking-wider">เมนูหลัก</p>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
+                      {allNavItems.filter(shouldShowNavItem).map((link, index) => (
+                        <motion.a
+                          key={link.name}
+                          href={link.href}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: index * 0.05 + 0.1 }}
+                          className="flex flex-col items-center p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 transition-colors"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          <span className="text-futsal-gold mb-2 p-2 bg-white/5 rounded-full">
+                            {link.icon}
+                          </span>
+                          <span className="text-white text-sm">{link.name}</span>
+                        </motion.a>
+                      ))}
+                    </div>
+                    
+                    {/* Authentication Options - แสดงในเมนู drop-down */}
+                    {isClient && (
+                      <>
+                        <div className="py-2 mt-2 mb-3 border-b border-white/10">
+                          <p className="text-xs font-medium text-white/50 uppercase tracking-wider">บัญชีผู้ใช้</p>
+                        </div>
+                        
+                        {status === "authenticated" && session ? (
+                          <div className="bg-white/5 rounded-xl p-4 border border-white/10">
+                            <div className="flex items-center gap-3 mb-3">
+                              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-futsal-gold to-futsal-orange flex items-center justify-center overflow-hidden">
+                                {session.user?.image ? (
+                                  <img
+                                    src={session.user.image}
+                                    alt="Profile"
+                                    className="w-full h-full object-cover"
+                                  />
+                                ) : (
+                                  <User size={24} className="text-white" />
+                                )}
+                              </div>
+                              <div>
+                                <p className="text-white font-medium">{session.user?.firstName} {session.user?.lastName}</p>
+                                <p className="text-xs text-white/70 truncate">{session.user?.email}</p>
+                              </div>
+                            </div>
+                            
+                            <div className="grid grid-cols-1 gap-2">
+                              <Link
+                                href="/dashboard/profile"
+                                className="flex items-center justify-center gap-2 p-2 rounded-lg bg-white/10 hover:bg-white/15 text-white text-sm"
+                                onClick={() => setIsMenuOpen(false)}
+                              >
+                                <User size={16} className="text-futsal-gold" />
+                                <span>โปรไฟล์</span>
+                              </Link>
+                            </div>
+                            
+                            <motion.button
+                              initial={{ opacity: 0, y: 5 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: 0.3 }}
+                              onClick={handleSignOut}
+                              className="w-full mt-3 flex items-center justify-center gap-2 p-2 rounded-lg bg-red-500/20 hover:bg-red-500/30 text-red-100 text-sm"
+                            >
+                              <LogOut size={16} />
+                              <span>ออกจากระบบ</span>
+                            </motion.button>
+                          </div>
+                        ) : status === "unauthenticated" ? (
+                          <motion.div
+                            initial={{ opacity: 0, y: 5 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.3 }}
+                          >
+                            <Link
+                              href="/auth/signin"
+                              className="flex items-center justify-center gap-2 p-3 rounded-xl bg-gradient-to-r from-futsal-gold to-futsal-orange hover:from-futsal-orange hover:to-futsal-gold text-white font-medium"
+                              onClick={() => setIsMenuOpen(false)}
+                            >
+                              <User size={18} />
+                              <span>เข้าสู่ระบบ</span>
+                            </Link>
+                          </motion.div>
+                        ) : null}
+                      </>
+                    )}
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </nav>
       </div>
     </header>

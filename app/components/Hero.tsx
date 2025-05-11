@@ -69,7 +69,7 @@ const Hero = () => {
             className="absolute inset-0"
           >
             <Image
-              src="/img/C2.webp"
+              src="/img/C2.png"
               alt="THE COACH"
               className="object-cover"
               priority
@@ -96,7 +96,7 @@ const Hero = () => {
               whileHover={{ scale: 1.02 }}
             >
               <Image
-                src="/img/COACHs.svg"
+                src="/img/TheCoach.png"
                 alt="THE COACH"
                 width={1920}
                 height={1080}
