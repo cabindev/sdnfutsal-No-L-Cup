@@ -62,7 +62,6 @@ const Hero = () => {
       {/* Container สำหรับรูปภาพ */}
       <div className="container mx-auto h-full flex items-center justify-center z-[3] relative">
         {isMobile ? (
-          // สำหรับมือถือ
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -80,16 +79,16 @@ const Hero = () => {
                 filter: "drop-shadow(0 0 15px rgba(0, 0, 0, 0.5))",
               }}
             />
-            
-            {/* โลโก้ THE COACH สำหรับมือถือ - ตำแหน่งด้านล่างของรูปคน */}
+
+            {/* โลโก้ THE COACH สำหรับมือถือ - ปรับตำแหน่งให้สูงขึ้น */}
             <motion.div
-              className="absolute bottom-[20%] left-0 right-0 flex justify-center items-center z-20"
+              className="absolute top-[65%] left-0 right-0 flex justify-center items-center z-20 px-4" // เพิ่ม px-4 สำหรับ padding ข้าง
               initial={{ y: 50, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 1, delay: 1.5 }}
             >
               <motion.div
-                className="max-w-[200px] w-full"
+                className="max-w-[180px] w-full" // ลดขนาดเล็กน้อยสำหรับมือถือ
                 whileHover={{ scale: 1.05 }}
                 transition={{ type: "spring", stiffness: 300 }}
               >
