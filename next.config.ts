@@ -1,9 +1,18 @@
-// next.config.js
-/** @type {import('next').NextConfig} */
-const nextConfig = {
+// next.config.ts
+import { NextConfig } from 'next';
+
+const nextConfig: NextConfig = {
   reactStrictMode: true,
   images: {
-    domains: ['sdnfutsal.com'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'sdnfutsal.com',
+        port: '',
+        pathname: '/**',
+      },
+    ],
   },
-}
-module.exports = nextConfig
+};
+
+export default nextConfig;
