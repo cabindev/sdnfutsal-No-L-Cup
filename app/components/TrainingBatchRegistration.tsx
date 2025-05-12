@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Button } from '@/app/components/ui/button';
 import { getActiveTrainingBatches, TrainingBatchWithCount, TrainingBatchesResponse } from '@/app/coach/actions/training-batch/get-active';
-import { CalendarDays, MapPin, Users, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { CalendarDays, MapPin, Users, ArrowRight, CheckCircle2, AlertCircle } from 'lucide-react';
 import { Badge } from '@/app/components/ui/badge';
 import { Progress } from '@/app/components/ui/progress';
 
@@ -74,6 +74,39 @@ export default function TrainingBatchRegistration() {
     };
   };
 
+  // ฟังก์ชันแสดงข้อความสถานะที่นั่ง
+  const getAvailabilityMessage = (batch: TrainingBatchWithCount) => {
+    const participantsCount = batch._count?.participants || 0;
+    const registrationPercentage = (participantsCount / batch.maxParticipants) * 100;
+    const seatsRemaining = Math.max(0, batch.maxParticipants - participantsCount);
+    
+    if (seatsRemaining === 0) {
+      return {
+        message: 'ที่นั่งเต็มแล้ว กรุณาเลือกรุ่นอื่น',
+        className: 'text-red-600 bg-red-50 border-red-100',
+        icon: <AlertCircle className="h-3 w-3 mr-1" />
+      };
+    } else if (registrationPercentage >= 80) {
+      return {
+        message: 'ที่นั่งเหลือน้อย รีบสมัครด่วน!',
+        className: 'text-amber-600 bg-amber-50 border-amber-100',
+        icon: <AlertCircle className="h-3 w-3 mr-1" />
+      };
+    } else if (registrationPercentage >= 50) {
+      return {
+        message: 'ที่นั่งกำลังเหลือน้อยลง',
+        className: 'text-blue-600 bg-blue-50 border-blue-100',
+        icon: <CheckCircle2 className="h-3 w-3 mr-1" />
+      };
+    } else {
+      return {
+        message: 'ที่นั่งว่าง สามารถลงทะเบียนได้',
+        className: 'text-green-600 bg-green-50 border-green-100',
+        icon: <CheckCircle2 className="h-3 w-3 mr-1" />
+      };
+    }
+  };
+
   return (
     <section className="py-16 bg-gradient-to-b from-white to-gray-50" id="registration">
       <div className="container mx-auto px-4">
@@ -95,6 +128,7 @@ export default function TrainingBatchRegistration() {
               const participantsCount = batch._count?.participants || 0;
               const seatsRemaining = Math.max(0, batch.maxParticipants - participantsCount);
               const registrationPercentage = (participantsCount / batch.maxParticipants) * 100;
+              const availabilityInfo = getAvailabilityMessage(batch);
               
               return (
                 <div 
@@ -143,37 +177,17 @@ export default function TrainingBatchRegistration() {
                               indicatorClassName={
                                 registrationPercentage >= 90 ? "bg-red-500" : 
                                 registrationPercentage >= 70 ? "bg-amber-500" : 
+                                registrationPercentage >= 40 ? "bg-blue-500" :
                                 "bg-green-500"
                               }
                             />
                           </div>
                           
-                          <div className="flex justify-between text-sm">
-                            <div>
-                              <span className="text-gray-700">ผู้สมัคร:</span> 
-                              <span className="font-medium ml-1 text-futsal-navy">{participantsCount} คน</span>
-                            </div>
-                            <div>
-                              <span className="text-gray-700">คงเหลือ:</span> 
-                              <span className={`font-medium ml-1 ${seatsRemaining <= 5 ? 'text-red-600' : 'text-green-600'}`}>
-                                {seatsRemaining} ที่นั่ง
-                              </span>
-                            </div>
+                          {/* แสดงข้อความสถานะแทนตัวเลข */}
+                          <div className={`text-xs p-1.5 rounded border flex items-center justify-center mt-2 ${availabilityInfo.className}`}>
+                            {availabilityInfo.icon}
+                            <span>{availabilityInfo.message}</span>
                           </div>
-                          
-                          {seatsRemaining <= 5 && seatsRemaining > 0 && (
-                            <div className="text-xs text-amber-600 bg-amber-50 p-1.5 rounded border border-amber-100 flex items-center">
-                              <CheckCircle2 className="h-3 w-3 mr-1" />
-                              <span>เหลือที่นั่งจำนวนจำกัด รีบสมัครด่วน!</span>
-                            </div>
-                          )}
-                          
-                          {seatsRemaining === 0 && (
-                            <div className="text-xs text-red-600 bg-red-50 p-1.5 rounded border border-red-100 flex items-center">
-                              <CheckCircle2 className="h-3 w-3 mr-1" />
-                              <span>ที่นั่งเต็มแล้ว กรุณาเลือกรุ่นอื่น</span>
-                            </div>
-                          )}
                         </div>
                       </div>
                     </div>
@@ -215,8 +229,6 @@ export default function TrainingBatchRegistration() {
             </p>
           </div>
         )}
-        
-
       </div>
     </section>
   );
