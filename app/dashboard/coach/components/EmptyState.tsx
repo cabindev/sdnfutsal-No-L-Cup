@@ -1,51 +1,83 @@
 // app/dashboard/coach/components/EmptyState.tsx
-'use client';
-
 import Link from "next/link";
 import { Button } from "@/app/components/ui/button";
-import { Users, Plus } from "lucide-react";
+import { Plus, Search, X, AlertCircle } from "lucide-react";
 
 interface EmptyStateProps {
   search?: string;
   status?: string;
   batch?: string;
-  isAdmin: boolean;
+  zone?: string;
+  isAdmin?: boolean;
 }
 
-export default function EmptyState({ search, status, batch, isAdmin }: EmptyStateProps) {
-  const hasFilters = search || (status && status !== 'all') || (batch && batch !== 'all');
+export default function EmptyState({ 
+  search, 
+  status, 
+  batch,
+  zone,
+  isAdmin = false 
+}: EmptyStateProps) {
+  // ตรวจสอบว่ามีการใช้ตัวกรองหรือไม่
+  const hasFilter = search || status !== 'all' || batch !== 'all' || zone !== 'all';
   
+  // แสดงข้อความตามเงื่อนไขการค้นหา
+  const getFilterMessage = () => {
+    let messages = [];
+    
+    if (search) {
+      messages.push(`คำค้นหา "${search}"`);
+    }
+    
+    if (status !== 'all') {
+      messages.push(`สถานะ ${status === 'pending' ? 'รอการอนุมัติ' : 'อนุมัติแล้ว'}`);
+    }
+    
+    if (batch !== 'all') {
+      messages.push(`รุ่นอบรมที่เลือก`);
+    }
+    
+    if (zone !== 'all') {
+      messages.push(`ภูมิภาค ${zone}`);
+    }
+    
+    return messages.join(', ');
+  };
+
   return (
-    <div className="text-center py-12 bg-gray-50 rounded-lg mt-6">
-      <div className="mx-auto w-24 h-24 mb-4 flex items-center justify-center rounded-full bg-gray-100">
-        <Users className="h-12 w-12 text-gray-400" />
-      </div>
-      <h3 className="text-lg font-medium text-gray-800 mb-1">ไม่พบข้อมูลโค้ช</h3>
-      <p className="text-gray-500 max-w-md mx-auto">
-        {hasFilters
-          ? 'ไม่พบข้อมูลโค้ชที่ตรงกับเงื่อนไขการค้นหา ลองเปลี่ยนคำค้นหาหรือตัวกรองใหม่' 
-          : 'ยังไม่มีข้อมูลโค้ชในระบบ'}
-      </p>
-      
-      <div className="mt-6 flex flex-wrap justify-center gap-2">
-        {hasFilters && (
-          <Button 
-            variant="outline"
-            onClick={() => window.location.href = '/dashboard/coach'}
-          >
-            ล้างตัวกรอง
-          </Button>
-        )}
-        
-        {isAdmin && (
-          <Button asChild className="bg-futsal-orange hover:bg-futsal-orange/90">
-            <Link href="/dashboard/coach/add" className="flex items-center gap-2">
-              <Plus className="h-4 w-4" />
-              เพิ่มโค้ชใหม่
+    <div className="mt-6 bg-gray-50 rounded-lg p-8 text-center">
+      {hasFilter ? (
+        <div>
+          <AlertCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+          <h3 className="text-lg font-semibold mb-2">ไม่พบข้อมูลโค้ช</h3>
+          <p className="text-gray-600 mb-4">
+            ไม่พบข้อมูลที่ตรงกับ {getFilterMessage()}
+          </p>
+          <Link href="/dashboard/coach">
+            <Button variant="outline" className="mr-2">
+              <X className="h-4 w-4 mr-2" />
+              ล้างตัวกรอง
+            </Button>
+          </Link>
+        </div>
+      ) : (
+        <div>
+          <Search className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+          <h3 className="text-lg font-semibold mb-2">ยังไม่มีข้อมูลโค้ช</h3>
+          <p className="text-gray-600 mb-4">
+            ยังไม่มีข้อมูลโค้ชในระบบ {isAdmin ? "คุณสามารถเพิ่มโค้ชใหม่ได้" : ""}
+          </p>
+          
+          {isAdmin && (
+            <Link href="/dashboard/coach/add">
+              <Button className="bg-futsal-orange hover:bg-futsal-orange/90">
+                <Plus className="h-4 w-4 mr-2" />
+                เพิ่มโค้ช
+              </Button>
             </Link>
-          </Button>
-        )}
-      </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

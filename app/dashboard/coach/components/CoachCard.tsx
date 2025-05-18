@@ -1,69 +1,63 @@
 // app/dashboard/coach/components/CoachCard.tsx
-'use client';
-
 import Link from "next/link";
-import { ChevronRight } from "lucide-react";
-import { Card, CardContent } from "@/app/components/ui/card";
+import { Badge } from "@/app/components/ui/badge";
+import { Card, CardContent, CardFooter } from "@/app/components/ui/card";
+import { Phone, MapPin, Calendar, User, Building, Check, Clock, Hash } from "lucide-react";
 
 interface CoachCardProps {
   coach: any;
+  index?: number; // เพิ่ม prop สำหรับรับลำดับ
 }
 
-export default function CoachCard({ coach }: CoachCardProps) {
+export default function CoachCard({ coach, index }: CoachCardProps) {
   return (
-    <Link 
-      href={`/dashboard/coach/${coach.id}`}
-      className="block transition-all hover:-translate-y-1"
-    >
-      <Card className="overflow-hidden border border-gray-200 hover:border-futsal-orange/50 hover:shadow-md transition-all duration-200">
-        <div className={`h-1.5 w-full ${coach.isApproved ? 'bg-futsal-green' : 'bg-futsal-orange'}`}></div>
-        <CardContent className="p-4">
-          <div className="flex items-center">
-            <div className="flex-shrink-0 mr-3">
-              <div className="w-12 h-12 rounded-full bg-futsal-navy/10 flex items-center justify-center text-futsal-navy font-semibold border-2 border-futsal-navy/20">
-                {coach.user.firstName?.charAt(0)}{coach.user.lastName?.charAt(0)}
-              </div>
+    <Card className="overflow-hidden">
+      <CardContent className="p-4">
+        <div className="flex items-center gap-3 mb-3">
+          {/* เพิ่มการแสดงลำดับ */}
+          {index !== undefined && (
+            <div className="flex items-center justify-center h-6 w-6 bg-gray-100 rounded-full text-xs text-gray-600 font-medium">
+              {index}
             </div>
-            <div className="flex-1 min-w-0">
-              <h3 className="text-lg font-medium text-gray-900 truncate">
-                {coach.user.firstName} {coach.user.lastName}
-              </h3>
-              <p className="text-sm text-gray-500 truncate">
-                {coach.nickname && <span>"{coach.nickname}" </span>}
-                {coach.teamName && <span>• {coach.teamName}</span>}
-              </p>
+          )}
+          
+          <div className="flex-shrink-0 h-10 w-10">
+            <div className="h-10 w-10 rounded-full bg-futsal-navy/10 flex items-center justify-center text-futsal-navy font-semibold">
+              {coach.user.firstName?.charAt(0)}{coach.user.lastName?.charAt(0)}
             </div>
           </div>
+          <div>
+            <div className="font-medium">{coach.user.firstName} {coach.user.lastName}</div>
+            {coach.nickname && <div className="text-sm text-gray-500">"{coach.nickname}"</div>}
+          </div>
+        </div>
+
+        <div className="space-y-2 text-sm">
+          {coach.teamName && (
+            <div className="flex items-center gap-2">
+              <Building className="h-4 w-4 text-gray-500" />
+              <span>{coach.teamName}</span>
+            </div>
+          )}
           
-          <div className="mt-3 pt-3 border-t border-gray-100">
-            <div className="flex items-center text-sm text-gray-500 mb-1.5">
-              <span className="flex-shrink-0 w-24">เบอร์โทรศัพท์:</span>
-              <span className="font-medium text-gray-700">{coach.phoneNumber}</span>
-            </div>
-            {coach.location && (
-              <div className="flex items-start text-sm text-gray-500 mb-1.5">
-                <span className="flex-shrink-0 w-24">พื้นที่:</span>
-                <span className="font-medium text-gray-700">
-                  {coach.location.amphoe}, {coach.location.province}
-                </span>
-              </div>
-            )}
-            <div className="flex items-center text-sm text-gray-500">
-              <span className="flex-shrink-0 w-24">สถานะ:</span>
-              <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                coach.isApproved 
-                  ? 'bg-green-100 text-green-800' 
-                  : 'bg-orange-100 text-orange-800'
-              }`}>
-                {coach.isApproved ? 'อนุมัติแล้ว' : 'รอการอนุมัติ'}
-              </span>
-            </div>
+          <div className="flex items-center gap-2">
+            <Phone className="h-4 w-4 text-gray-500" />
+            <span>{coach.phoneNumber}</span>
           </div>
           
-          {/* แสดงข้อมูลรุ่นอบรม */}
+          {coach.location && (
+            <div className="flex items-start gap-2">
+              <MapPin className="h-4 w-4 text-gray-500 mt-0.5" />
+              <div>
+                <div>{coach.location.amphoe}, {coach.location.province}</div>
+                {coach.location.zone && <div className="text-xs text-gray-500">{coach.location.zone}</div>}
+              </div>
+            </div>
+          )}
+          
           {coach.batchParticipations && coach.batchParticipations.length > 0 && (
-            <div className="mt-3 pt-3 border-t border-gray-100">
-              <div className="text-sm text-gray-500 mb-1.5">รุ่นการอบรม:</div>
+            <div className="flex items-center gap-2">
+              <Calendar className="h-4 w-4 text-gray-500" />
               <div className="flex flex-wrap gap-1">
                 {coach.batchParticipations.map((participation: any) => (
                   <span 
@@ -76,21 +70,32 @@ export default function CoachCard({ coach }: CoachCardProps) {
                           : 'bg-yellow-100 text-yellow-800'
                     }`}
                   >
-                    รุ่น {participation.batch.batchNumber}/{participation.batch.year}
+                    {participation.batch.batchNumber}/{participation.batch.year}
                   </span>
                 ))}
               </div>
             </div>
           )}
           
-          <div className="mt-3 flex justify-end">
-            <div className="flex items-center text-futsal-orange text-sm">
-              <span>ดูข้อมูลเพิ่มเติม</span>
-              <ChevronRight className="h-4 w-4 ml-1" />
-            </div>
+          <div className="flex items-center gap-2">
+            {coach.isApproved ? (
+              <Check className="h-4 w-4 text-green-600" />
+            ) : (
+              <Clock className="h-4 w-4 text-orange-600" />
+            )}
+            <span>{coach.isApproved ? 'อนุมัติแล้ว' : 'รอการอนุมัติ'}</span>
           </div>
-        </CardContent>
-      </Card>
-    </Link>
+        </div>
+      </CardContent>
+      
+      <CardFooter className="bg-gray-50 p-3 flex justify-end">
+        <Link 
+          href={`/dashboard/coach/${coach.id}`}
+          className="text-sm text-futsal-orange hover:text-futsal-orange/80"
+        >
+          ดูข้อมูล
+        </Link>
+      </CardFooter>
+    </Card>
   );
 }
