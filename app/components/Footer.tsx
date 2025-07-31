@@ -10,8 +10,8 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
           <div>
             <div className="flex items-center mb-6">
-              <span className="text-futsal-navy font-prompt font-bold text-3xl">SDN</span>
-              <span className="text-futsal-orange font-prompt font-bold text-3xl">FUTSAL NO L CUP</span>
+              <span className="text-futsal-navy font-bold text-3xl">SDN</span>
+              <span className="text-futsal-orange font-bold text-3xl">FUTSAL NO L CUP</span>
             </div>
             <p className="text-gray-300 mb-6 leading-relaxed">
               โรงเรียนสอนฟุตซอลระดับมืออาชีพสำหรับเยาวชน มุ่งมั่นพัฒนาทักษะกีฬาและสร้างนักกีฬาที่มีคุณภาพพร้อมก้าวสู่การแข่งขันระดับสูง

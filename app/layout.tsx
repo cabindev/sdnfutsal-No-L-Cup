@@ -1,24 +1,11 @@
 // app/layout.tsx
 import type { Metadata } from "next";
-import { Inter, Prompt } from 'next/font/google';
 import "./globals.css";
 import SessionProvider from "./components/SessionProvider";
 import FutsalNavbar from "./components/Futsal-Navbar";
 import { getServerSession } from "next-auth";
 import authOptions from "./lib/configs/auth/authOptions";
 import { Toaster } from "sonner";
-
-const inter = Inter({
-  subsets: ['latin'],
-  variable: '--font-inter',
-});
-
-const prompt = Prompt({
-  weight: ['300', '400', '500', '600', '700'],
-  subsets: ['latin'],
-  variable: '--font-prompt',
-  display: 'swap',
-});
 
 export const metadata: Metadata = {
   title: "SDN FUTSAL No L CUP",
@@ -35,7 +22,7 @@ export default async function RootLayout({
   
   return (
     <html lang="th" className="scroll-smooth">
-      <body className={`${inter.variable} ${prompt.variable} font-prompt antialiased`}>
+      <body className="font-sans antialiased">
         <SessionProvider session={session}>
           <FutsalNavbar />
           <main>
