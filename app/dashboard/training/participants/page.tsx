@@ -145,36 +145,37 @@ export default async function ParticipantsPage({
   };
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
+    <div className="p-4 max-w-7xl mx-auto">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
         <div>
-          <h1 className="text-2xl font-bold text-futsal-navy">
+          <h1 className="text-lg font-bold text-futsal-navy">
             จัดการผู้เข้าร่วมอบรม
           </h1>
-          <p className="text-gray-600">อนุมัติและจัดการการลงทะเบียนของโค้ช</p>
+          <p className="text-sm text-gray-600">อนุมัติและจัดการการลงทะเบียนของโค้ช</p>
         </div>
 
         <Button
           asChild
-          className="mt-4 sm:mt-0 bg-futsal-orange hover:bg-futsal-orange/90"
+          size="sm"
+          className="mt-3 sm:mt-0 bg-futsal-orange hover:bg-futsal-orange/90 text-sm"
         >
           <Link href="/dashboard/training/batch">
             จัดการรุ่นอบรม
-            <ChevronRight className="h-4 w-4 ml-1" />
+            <ChevronRight className="h-3 w-3 ml-1" />
           </Link>
         </Button>
       </div>
 
       {/* สถิติการลงทะเบียน */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
         <Card className="bg-gradient-to-br from-futsal-blue/10 to-futsal-navy/5 border-futsal-blue/20">
-          <CardContent className="p-4 flex items-center">
-            <div className="bg-futsal-blue/20 w-12 h-12 rounded-lg flex items-center justify-center mr-4">
-              <Users className="h-6 w-6 text-futsal-blue" />
+          <CardContent className="p-3 flex items-center">
+            <div className="bg-futsal-blue/20 w-8 h-8 rounded-lg flex items-center justify-center mr-3">
+              <Users className="h-4 w-4 text-futsal-blue" />
             </div>
             <div>
-              <p className="text-sm text-gray-500">ผู้ลงทะเบียนทั้งหมด</p>
-              <h3 className="text-2xl font-bold text-futsal-navy">
+              <p className="text-xs text-gray-500">ผู้ลงทะเบียนทั้งหมด</p>
+              <h3 className="text-lg font-bold text-futsal-navy">
                 {stats.total}
               </h3>
             </div>
@@ -182,13 +183,13 @@ export default async function ParticipantsPage({
         </Card>
 
         <Card className="bg-gradient-to-br from-amber-500/10 to-amber-600/5 border-amber-500/20">
-          <CardContent className="p-4 flex items-center">
-            <div className="bg-amber-500/20 w-12 h-12 rounded-lg flex items-center justify-center mr-4">
-              <Clock className="h-6 w-6 text-amber-500" />
+          <CardContent className="p-3 flex items-center">
+            <div className="bg-amber-500/20 w-8 h-8 rounded-lg flex items-center justify-center mr-3">
+              <Clock className="h-4 w-4 text-amber-500" />
             </div>
             <div>
-              <p className="text-sm text-gray-500">รอการอนุมัติ</p>
-              <h3 className="text-2xl font-bold text-amber-600">
+              <p className="text-xs text-gray-500">รอการอนุมัติ</p>
+              <h3 className="text-lg font-bold text-amber-600">
                 {stats.pending}
               </h3>
             </div>
@@ -196,13 +197,13 @@ export default async function ParticipantsPage({
         </Card>
 
         <Card className="bg-gradient-to-br from-futsal-green/10 to-futsal-green/5 border-futsal-green/20">
-          <CardContent className="p-4 flex items-center">
-            <div className="bg-futsal-green/20 w-12 h-12 rounded-lg flex items-center justify-center mr-4">
-              <CheckCircle className="h-6 w-6 text-futsal-green" />
+          <CardContent className="p-3 flex items-center">
+            <div className="bg-futsal-green/20 w-8 h-8 rounded-lg flex items-center justify-center mr-3">
+              <CheckCircle className="h-4 w-4 text-futsal-green" />
             </div>
             <div>
-              <p className="text-sm text-gray-500">อนุมัติแล้ว</p>
-              <h3 className="text-2xl font-bold text-futsal-green">
+              <p className="text-xs text-gray-500">อนุมัติแล้ว</p>
+              <h3 className="text-lg font-bold text-futsal-green">
                 {stats.approved}
               </h3>
             </div>
@@ -210,13 +211,13 @@ export default async function ParticipantsPage({
         </Card>
 
         <Card className="bg-gradient-to-br from-red-500/10 to-red-600/5 border-red-500/20">
-          <CardContent className="p-4 flex items-center">
-            <div className="bg-red-500/20 w-12 h-12 rounded-lg flex items-center justify-center mr-4">
-              <XCircle className="h-6 w-6 text-red-500" />
+          <CardContent className="p-3 flex items-center">
+            <div className="bg-red-500/20 w-8 h-8 rounded-lg flex items-center justify-center mr-3">
+              <XCircle className="h-4 w-4 text-red-500" />
             </div>
             <div>
-              <p className="text-sm text-gray-500">ไม่อนุมัติ</p>
-              <h3 className="text-2xl font-bold text-red-600">
+              <p className="text-xs text-gray-500">ไม่อนุมัติ</p>
+              <h3 className="text-lg font-bold text-red-600">
                 {stats.rejected}
               </h3>
             </div>
@@ -225,7 +226,7 @@ export default async function ParticipantsPage({
       </div>
 
       {/* ตัวกรองและการค้นหา */}
-      <div className="flex flex-col md:flex-row gap-4 mb-6">
+      <div className="flex flex-col md:flex-row gap-3 mb-4">
         <div className="flex flex-wrap gap-2 md:flex-1">
           <Link href="/dashboard/training/participants">
             <Button
@@ -279,9 +280,9 @@ export default async function ParticipantsPage({
                 name="search"
                 placeholder="ค้นหาชื่อหรืออีเมล"
                 defaultValue={search}
-                className="pl-9 w-full md:w-64"
+                className="pl-8 w-full md:w-56 text-sm h-8"
               />
-              <Search className="h-4 w-4 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2" />
+              <Search className="h-3 w-3 text-gray-500 absolute left-2.5 top-1/2 -translate-y-1/2" />
               <Button type="submit" className="sr-only">
                 ค้นหา
               </Button>
@@ -299,20 +300,20 @@ export default async function ParticipantsPage({
 
       {/* แสดงรายชื่อผู้ลงทะเบียน */}
       <Card>
-        <CardHeader>
-          <CardTitle className="text-lg flex items-center">
-            <UserCheck className="h-5 w-5 mr-2 text-futsal-blue" />
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base flex items-center">
+            <UserCheck className="h-4 w-4 mr-2 text-futsal-blue" />
             รายชื่อผู้ลงทะเบียน {filter === "pending" ? "(รอการอนุมัติ)" : ""}
           </CardTitle>
         </CardHeader>
         <CardContent>
           {participants.length === 0 ? (
-            <div className="p-12 text-center">
-              <Users className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-              <h3 className="text-lg font-medium text-gray-700 mb-1">
+            <div className="p-8 text-center">
+              <Users className="h-10 w-10 text-gray-300 mx-auto mb-2" />
+              <h3 className="text-base font-medium text-gray-700 mb-1">
                 ไม่พบข้อมูลการลงทะเบียน
               </h3>
-              <p className="text-gray-500">
+              <p className="text-sm text-gray-500">
                 {search
                   ? "ไม่พบผลลัพธ์ที่ตรงกับการค้นหา"
                   : filter !== "all"
@@ -321,21 +322,21 @@ export default async function ParticipantsPage({
               </p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+            <div className="table-responsive">
+              <table className="w-full text-xs">
                 <thead className="bg-gray-50 text-gray-600">
                   <tr>
-                    <th className="px-4 py-3 text-left font-medium">
+                    <th className="px-3 py-2 text-left font-medium text-xs">
                       ชื่อ-นามสกุล
                     </th>
-                    <th className="px-4 py-3 text-left font-medium">
+                    <th className="px-3 py-2 text-left font-medium text-xs">
                       รุ่นที่สมัคร
                     </th>
-                    <th className="px-4 py-3 text-left font-medium">
+                    <th className="px-3 py-2 text-left font-medium text-xs">
                       วันที่ลงทะเบียน
                     </th>
-                    <th className="px-4 py-3 text-left font-medium">สถานะ</th>
-                    <th className="px-4 py-3 text-right font-medium">
+                    <th className="px-3 py-2 text-left font-medium text-xs">สถานะ</th>
+                    <th className="px-3 py-2 text-right font-medium text-xs">
                       การจัดการ
                     </th>
                   </tr>
@@ -343,9 +344,9 @@ export default async function ParticipantsPage({
                 <tbody className="divide-y divide-gray-200">
                   {participants.map((participant) => (
                     <tr key={participant.id} className="hover:bg-gray-50">
-                      <td className="px-4 py-3 whitespace-nowrap">
+                      <td className="px-3 py-2 whitespace-nowrap">
                         <div className="flex items-center">
-                          <Avatar className="h-8 w-8 mr-3">
+                          <Avatar className="h-6 w-6 mr-2">
                             <AvatarFallback className="text-xs bg-futsal-blue/10 text-futsal-blue">
                               {participant.coach.user.firstName?.charAt(0) ||
                                 ""}
@@ -353,7 +354,7 @@ export default async function ParticipantsPage({
                             </AvatarFallback>
                           </Avatar>
                           <div>
-                            <div className="font-medium text-gray-900">
+                            <div className="font-medium text-gray-900 text-xs">
                               {participant.coach.user.firstName}{" "}
                               {participant.coach.user.lastName}
                             </div>
@@ -363,8 +364,8 @@ export default async function ParticipantsPage({
                           </div>
                         </div>
                       </td>
-                      <td className="px-4 py-3 whitespace-nowrap">
-                        <div>
+                      <td className="px-3 py-2 whitespace-nowrap">
+                        <div className="text-xs font-medium">
                           รุ่นที่ {participant.batch.batchNumber}/
                           {participant.batch.year}
                         </div>
@@ -373,22 +374,22 @@ export default async function ParticipantsPage({
                           {formatDate(participant.batch.endDate)}
                         </div>
                       </td>
-                      <td className="px-4 py-3 whitespace-nowrap">
-                        <div>{formatDate(participant.registeredAt)}</div>
+                      <td className="px-3 py-2 whitespace-nowrap">
+                        <div className="text-xs">{formatDate(participant.registeredAt)}</div>
                         <div className="text-xs text-gray-500">
                           {formatTime(participant.registeredAt)}
                         </div>
                       </td>
-                      <td className="px-4 py-3 whitespace-nowrap">
+                      <td className="px-3 py-2 whitespace-nowrap">
                         <Badge
                           className={
                             participant.status === "APPROVED"
-                              ? "bg-green-100 text-green-800"
+                              ? "bg-green-100 text-green-800 text-xs px-2 py-0.5"
                               : participant.status === "REJECTED"
-                              ? "bg-red-100 text-red-800"
+                              ? "bg-red-100 text-red-800 text-xs px-2 py-0.5"
                               : participant.status === "CANCELED"
-                              ? "bg-red-100 text-red-800"
-                              : "bg-yellow-100 text-yellow-800"
+                              ? "bg-red-100 text-red-800 text-xs px-2 py-0.5"
+                              : "bg-yellow-100 text-yellow-800 text-xs px-2 py-0.5"
                           }
                         >
                           {participant.status === "APPROVED"
@@ -400,17 +401,17 @@ export default async function ParticipantsPage({
                             : "รอการอนุมัติ"}
                         </Badge>
                       </td>
-                      <td className="px-4 py-3 whitespace-nowrap text-right">
-                        <div className="flex justify-end space-x-2">
+                      <td className="px-3 py-2 whitespace-nowrap text-right">
+                        <div className="flex justify-end space-x-1">
                           <Link
                             href={`/dashboard/training/participants/${participant.id}`}
                           >
                             <Button
                               variant="outline"
                               size="sm"
-                              className="text-gray-700"
+                              className="text-gray-700 text-xs h-7 px-2"
                             >
-                              <FileText className="h-4 w-4 mr-1" />
+                              <FileText className="h-3 w-3 mr-1" />
                               รายละเอียด
                             </Button>
                           </Link>
@@ -426,9 +427,9 @@ export default async function ParticipantsPage({
                                 <Button
                                   type="submit"
                                   size="sm"
-                                  className="bg-futsal-green hover:bg-futsal-green/90"
+                                  className="bg-futsal-green hover:bg-futsal-green/90 text-xs h-7 px-2"
                                 >
-                                  <CheckCircle className="h-4 w-4 mr-1" />
+                                  <CheckCircle className="h-3 w-3 mr-1" />
                                   อนุมัติ
                                 </Button>
                               </form>
@@ -443,8 +444,9 @@ export default async function ParticipantsPage({
                                   type="submit"
                                   size="sm"
                                   variant="destructive"
+                                  className="text-xs h-7 px-2"
                                 >
-                                  <XCircle className="h-4 w-4 mr-1" />
+                                  <XCircle className="h-3 w-3 mr-1" />
                                   ไม่อนุมัติ
                                 </Button>
                               </form>

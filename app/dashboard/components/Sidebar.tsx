@@ -147,9 +147,8 @@ export default function Sidebar({ user }: SidebarProps) {
 
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-40 flex flex-col bg-futsal-navy text-white transition-all duration-300 shadow-xl", // ค่า z-index ยังเป็น 40
-          sidebarCollapsed ? "w-20" : "w-72",
-          // ซ่อน sidebar บนมือถือและแสดงเมื่อเปิดเท่านั้น
+          "fixed inset-y-0 left-0 z-40 flex flex-col bg-futsal-navy text-white transition-all duration-300 shadow-xl",
+          sidebarCollapsed ? "w-16" : "w-64",
           "lg:translate-x-0",
           isMobileSidebarOpen ? "translate-x-0" : "-translate-x-full"
         )}
@@ -158,33 +157,32 @@ export default function Sidebar({ user }: SidebarProps) {
         <div className="flex h-16 items-center justify-between border-b border-white/10 px-4">
           {!sidebarCollapsed ? (
             <div className="flex items-center">
-              <Link href="/dashboard">
+              <Link href="/dashboard" className="flex items-center">
                 <img
                   src="/img/sdnfutsal.png"
                   alt="SDN Futsal Logo"
-                  className="h-9 w-auto"
+                  className="h-8 w-auto hidden sm:block"
                 />
-              </Link>
-              <Link href="/" className="ml-3">
-                <span className="text-white font-semibold text-gradient-gold-orange">
-                  Futsal NO L
+                <span className="text-white font-semibold text-lg sm:ml-3">
+                  Futsal System
                 </span>
               </Link>
             </div>
           ) : (
-            <Link href="/dashboard" className="mx-auto">
+            <Link href="/dashboard" className="mx-auto hidden sm:block">
               <img
                 src="/img/sdnfutsal.png"
                 alt="SDN Futsal Logo"
-                className="h-10 w-auto"
+                className="h-8 w-auto"
               />
             </Link>
           )}
 
           {/* ปุ่มปิดบนมือถือ */}
           <button
+            type="button"
             onClick={() => toggleMobileSidebar(false)}
-            className="p-1.5 rounded-md text-white/80 hover:text-white hover:bg-white/10 lg:hidden"
+            className="p-2 rounded-md text-white/80 hover:text-white hover:bg-white/10 lg:hidden transition-colors"
             aria-label="ปิดเมนู"
           >
             <X className="h-5 w-5" />
@@ -192,15 +190,12 @@ export default function Sidebar({ user }: SidebarProps) {
 
           {/* ปุ่มย่อ/ขยายบนจอใหญ่ */}
           <button
+            type="button"
             onClick={toggleSidebar}
-            className="p-1.5 rounded-md text-white/80 hover:text-white hover:bg-white/10 hidden lg:block"
+            className="p-2 rounded-md text-white/80 hover:text-white hover:bg-white/10 hidden lg:block transition-colors"
             aria-label={sidebarCollapsed ? "ขยายเมนู" : "ย่อเมนู"}
           >
-            {sidebarCollapsed ? (
-              <Menu className="h-5 w-5" />
-            ) : (
-              <PanelLeft className="h-5 w-5" />
-            )}
+            <Menu className="h-5 w-5" />
           </button>
         </div>
 
@@ -465,7 +460,7 @@ export default function Sidebar({ user }: SidebarProps) {
 
               {/* Collapsed Settings submenu */}
               {sidebarCollapsed && (
-                <div className="mt-1">
+                <div className="mt-1 px-3 space-y-1">
                   {settingsMenu.subMenus.map((subMenu) => {
                     // Check permissions before showing menu
                     if (subMenu.requireAdmin && !isAdmin) {
@@ -481,61 +476,70 @@ export default function Sidebar({ user }: SidebarProps) {
                       <Link
                         key={subMenu.href}
                         href={subMenu.href}
-                        className={`flex justify-center p-2 my-1 transition-all duration-200 rounded-lg ${
+                        className={cn(
+                          "flex justify-center p-2 rounded-md transition-all duration-200",
                           isSubActive
-                          ? "bg-futsal-gold/20 text-futsal-gold"
-                          : "text-white/70 hover:bg-white/10 hover:text-white"
-                      }`}
-                      title={subMenu.name}
-                    >
-                      <Icon className="w-5 h-5" />
-                    </Link>
-                  );
-                })}
-              </div>
-            )}
+                            ? "bg-blue-100 text-blue-700"
+                            : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                        )}
+                        title={subMenu.name}
+                      >
+                        <Icon className="w-5 h-5" />
+                      </Link>
+                    );
+                  })}
+                </div>
+              )}
           </div>
         </div>
       </div>
 
       {/* User info & logout */}
-      <div className="border-t border-white/10 p-4">
+      <div className="border-t border-gray-200 p-4 bg-gray-50">
         <div
           className={cn(
-            "flex items-center bg-white/5 p-3 rounded-lg",
+            "flex items-center p-3 rounded-lg bg-white border border-gray-200 shadow-sm",
             sidebarCollapsed && "justify-center"
           )}
         >
           <div className="flex-shrink-0">
-            <div className="h-10 w-10 rounded-full bg-futsal-orange flex items-center justify-center shadow-futsal">
+            <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-md">
               <span className="text-sm font-medium text-white">
                 {user?.firstName?.charAt(0) || user?.name?.charAt(0) || "U"}
               </span>
             </div>
           </div>
           {!sidebarCollapsed && (
-            <div className="ml-3">
-              <p className="text-sm font-medium text-white">
+            <div className="ml-3 flex-1">
+              <p className="text-sm font-medium text-gray-900">
                 {user?.firstName || user?.name || ""} {user?.lastName || ""}
               </p>
-              <p className="text-xs text-white/70">{user?.email || ""}</p>
-              <p className="text-xs mt-1 bg-futsal-green/20 text-futsal-green inline-block px-2 py-0.5 rounded-full">
-                {user?.role === "ADMIN" ? "ผู้ดูแลระบบ" : "ผู้ใช้งาน"}
-              </p>
+              <p className="text-xs text-gray-500">{user?.email || ""}</p>
+              <div className="mt-1">
+                <span className={cn(
+                  "text-xs inline-block px-2 py-0.5 rounded-full font-medium",
+                  user?.role === "ADMIN" 
+                    ? "bg-green-100 text-green-800" 
+                    : "bg-blue-100 text-blue-800"
+                )}>
+                  {user?.role === "ADMIN" ? "ผู้ดูแลระบบ" : "ผู้ใช้งาน"}
+                </span>
+              </div>
             </div>
           )}
         </div>
         <button
+          type="button"
           onClick={() => signOut({ callbackUrl: "/" })}
           className={cn(
-            "mt-4 flex items-center p-3 rounded-lg w-full text-white/80 hover:bg-futsal-orange hover:text-white transition-all duration-200",
+            "mt-3 flex items-center px-3 py-2 rounded-md w-full text-gray-700 hover:bg-red-50 hover:text-red-700 transition-all duration-200 font-medium text-sm",
             sidebarCollapsed && "justify-center"
           )}
           aria-label="ออกจากระบบ"
         >
           <LogOut className="w-5 h-5 flex-shrink-0" />
           {!sidebarCollapsed && (
-            <span className="ml-3 font-medium">ออกจากระบบ</span>
+            <span className="ml-3">ออกจากระบบ</span>
           )}
         </button>
       </div>

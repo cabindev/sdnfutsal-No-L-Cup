@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { Badge } from "@/app/components/ui/badge";
 import { Card, CardContent, CardFooter } from "@/app/components/ui/card";
-import { Phone, MapPin, Calendar, User, Building, Check, Clock, Hash } from "lucide-react";
+import { Phone, MapPin, Calendar, Building, Check, Clock, Hash } from "lucide-react";
 
 interface CoachCardProps {
   coach: any;

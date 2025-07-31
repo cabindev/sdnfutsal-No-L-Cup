@@ -70,19 +70,19 @@ export default function CoachTable({
   };
 
   return (
-    <div className="overflow-x-auto rounded-lg border border-gray-200">
+    <div className="table-responsive rounded-lg border border-gray-200">
       <table className="min-w-full divide-y divide-gray-200">
         <thead className="bg-gray-50">
           <tr>
-            <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ลำดับ</th>
-            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ชื่อ-นามสกุล</th>
-            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ทีม/สังกัด</th>
-            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ติดต่อ</th>
-            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">พื้นที่</th>
-            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ภูมิภาค</th>
-            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">รุ่นอบรม</th>
-            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">สถานะ</th>
-            <th scope="col" className="relative px-6 py-3">
+            <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ลำดับ</th>
+            <th scope="col" className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ชื่อ-นามสกุล</th>
+            <th scope="col" className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ทีม/สังกัด</th>
+            <th scope="col" className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ติดต่อ</th>
+            <th scope="col" className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">พื้นที่</th>
+            <th scope="col" className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ภูมิภาค</th>
+            <th scope="col" className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">รุ่นอบรม</th>
+            <th scope="col" className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">สถานะ</th>
+            <th scope="col" className="relative px-4 py-2">
               <span className="sr-only">จัดการ</span>
             </th>
           </tr>
@@ -91,59 +91,59 @@ export default function CoachTable({
           {coaches.map((coach, index) => (
             <tr key={coach.id} className="hover:bg-gray-50">
               {/* ลำดับ */}
-              <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+              <td className="px-3 py-3 whitespace-nowrap text-xs text-gray-500">
                 {startIndex + index}
               </td>
               
               {/* ชื่อ-นามสกุล */}
-              <td className="px-6 py-4 whitespace-nowrap">
+              <td className="px-4 py-3 whitespace-nowrap">
                 <div className="flex items-center">
-                  <div className="flex-shrink-0 h-10 w-10">
-                    <div className="h-10 w-10 rounded-full bg-futsal-navy/10 flex items-center justify-center text-futsal-navy font-semibold">
+                  <div className="flex-shrink-0 h-8 w-8">
+                    <div className="h-8 w-8 rounded-full bg-futsal-navy/10 flex items-center justify-center text-futsal-navy font-semibold text-xs">
                       {coach.user.firstName?.charAt(0)}{coach.user.lastName?.charAt(0)}
                     </div>
                   </div>
-                  <div className="ml-4">
-                    <div className="text-sm font-medium text-gray-900">{coach.user.firstName} {coach.user.lastName}</div>
-                    {coach.nickname && <div className="text-sm text-gray-500">"{coach.nickname}"</div>}
+                  <div className="ml-3">
+                    <div className="text-xs font-medium text-gray-900">{coach.user.firstName} {coach.user.lastName}</div>
+                    {coach.nickname && <div className="text-xs text-gray-500">"{coach.nickname}"</div>}
                   </div>
                 </div>
               </td>
               
               {/* ทีม/สังกัด */}
-              <td className="px-6 py-4 whitespace-nowrap">
-                <div className="text-sm text-gray-900">{coach.teamName || "-"}</div>
+              <td className="px-4 py-3 whitespace-nowrap">
+                <div className="text-xs text-gray-900">{coach.teamName || "-"}</div>
               </td>
               
               {/* ติดต่อ */}
-              <td className="px-6 py-4 whitespace-nowrap">
-                <div className="text-sm text-gray-900">{coach.phoneNumber}</div>
+              <td className="px-4 py-3 whitespace-nowrap">
+                <div className="text-xs text-gray-900">{coach.phoneNumber}</div>
                 {coach.lineId && <div className="text-xs text-gray-500">Line: {coach.lineId}</div>}
                 {coach.user?.email && <div className="text-xs text-gray-500">{coach.user.email}</div>}
               </td>
               
               {/* พื้นที่ */}
-              <td className="px-6 py-4 whitespace-nowrap">
-                <div className="text-sm text-gray-900">
+              <td className="px-4 py-3 whitespace-nowrap">
+                <div className="text-xs text-gray-900">
                   {coach.location?.amphoe || "-"}, {coach.location?.province || "-"}
                 </div>
               </td>
               
               {/* ภูมิภาค */}
-              <td className="px-6 py-4 whitespace-nowrap">
-                <div className="text-sm text-gray-900">
+              <td className="px-4 py-3 whitespace-nowrap">
+                <div className="text-xs text-gray-900">
                   {coach.location?.zone || "-"}
                 </div>
               </td>
               
               {/* รุ่นอบรม */}
-              <td className="px-6 py-4 whitespace-nowrap">
+              <td className="px-4 py-3 whitespace-nowrap">
                 <div className="flex flex-wrap gap-1">
                   {coach.batchParticipations && coach.batchParticipations.length > 0 ? (
                     coach.batchParticipations.map((participation: any) => (
                       <span 
                         key={participation.id}
-                        className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                        className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium ${
                           participation.status === 'APPROVED' 
                             ? 'bg-green-100 text-green-800' 
                             : participation.status === 'REJECTED'
@@ -159,8 +159,8 @@ export default function CoachTable({
               </td>
               
               {/* สถานะ */}
-              <td className="px-6 py-4 whitespace-nowrap">
-                <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+              <td className="px-4 py-3 whitespace-nowrap">
+                <span className={`px-1.5 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-full ${
                   coach.isApproved 
                     ? 'bg-green-100 text-green-800' 
                     : 'bg-yellow-100 text-yellow-800'
@@ -170,7 +170,7 @@ export default function CoachTable({
               </td>
               
               {/* จัดการ */}
-              <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+              <td className="px-4 py-3 whitespace-nowrap text-right text-xs font-medium">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="icon">

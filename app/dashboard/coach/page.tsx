@@ -119,18 +119,18 @@ export default async function CoachListPage({ searchParams }: { searchParams: Pr
   const currentZoneName = zone !== 'all' ? zone : 'ทุกภูมิภาค';
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div className="p-4 max-w-7xl mx-auto">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
         <StatCard icon={Users} label="จำนวนโค้ชทั้งหมด" value={stats.total} color="futsal-navy" bg="futsal-blue" />
         <StatCard icon={CheckCircle} label="อนุมัติแล้ว" value={stats.approved} color="futsal-green" bg="futsal-green" />
         <StatCard icon={Clock} label="รอการอนุมัติ" value={stats.pending} color="futsal-orange" bg="futsal-orange" />
         <StatCard icon={Users} label="ลงทะเบียนวันนี้" value={stats.registeredToday} color="purple-600" bg="purple-500" />
       </div>
 
-      <div className="flex flex-col md:flex-row md:items-center justify-between mb-6">
+      <div className="flex flex-col md:flex-row md:items-center justify-between mb-4">
         <div>
-          <h1 className="text-2xl font-bold text-futsal-navy">รายชื่อโค้ชฟุตซอล</h1>
-          <p className="text-gray-600">
+          <h1 className="text-lg font-bold text-futsal-navy">รายชื่อโค้ชฟุตซอล</h1>
+          <p className="text-sm text-gray-600">
             จัดการรายชื่อโค้ช และดูสถานะการลงทะเบียน
             {batchId !== "all" && ` - ${currentBatchName}`}
             {zone !== "all" && ` - ${currentZoneName}`}
@@ -225,13 +225,13 @@ export default async function CoachListPage({ searchParams }: { searchParams: Pr
 function StatCard({ icon: Icon, label, value, color, bg }: { icon: any; label: string; value: number; color: string; bg: string }) {
   return (
     <Card className={`bg-gradient-to-br from-${bg}/10 to-${bg}/5 border-${bg}/20`}>
-      <CardContent className="p-4 flex items-center">
-        <div className={`bg-${bg}/20 w-12 h-12 rounded-lg flex items-center justify-center mr-4`}>
-          <Icon className={`h-6 w-6 text-${color}`} />
+      <CardContent className="p-3 flex items-center">
+        <div className={`bg-${bg}/20 w-8 h-8 rounded-lg flex items-center justify-center mr-3`}>
+          <Icon className={`h-4 w-4 text-${color}`} />
         </div>
         <div>
-          <p className="text-sm text-gray-500">{label}</p>
-          <h3 className={`text-2xl font-bold text-${color}`}>{value}</h3>
+          <p className="text-xs text-gray-500">{label}</p>
+          <h3 className={`text-lg font-bold text-${color}`}>{value}</h3>
         </div>
       </CardContent>
     </Card>

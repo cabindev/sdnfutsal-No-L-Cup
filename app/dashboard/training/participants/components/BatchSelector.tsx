@@ -53,7 +53,7 @@ export function BatchSelector({ batches, currentBatchId, filter, search }: Batch
   return (
     <div className="relative">
       <select
-        className="w-full md:w-48 h-10 pl-4 pr-8 rounded-md border border-input bg-background text-sm"
+        className="w-full md:w-40 h-8 pl-3 pr-6 rounded-md border border-input bg-background text-xs"
         onChange={handleChange}
         defaultValue={currentBatchId?.toString() || ''}
       >
@@ -64,7 +64,7 @@ export function BatchSelector({ batches, currentBatchId, filter, search }: Batch
           </option>
         ))}
       </select>
-      <Filter className="h-4 w-4 text-gray-500 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+      <Filter className="h-3 w-3 text-gray-500 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
     </div>
   );
 }
