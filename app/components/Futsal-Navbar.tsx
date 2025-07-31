@@ -146,64 +146,62 @@ const Navbar = () => {
   return (
     <header 
       className={cn(
-        "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
+        "fixed top-0 left-0 right-0 z-50 transition-all duration-200",
         isScrolled 
-          ? "bg-white/95 backdrop-blur-md shadow-md border-b border-gray-200/80 py-3" 
-          : "bg-white/90 backdrop-blur-sm shadow-sm py-4"
+          ? "bg-white/98 backdrop-blur-sm shadow-sm border-b border-gray-100 py-2" 
+          : "bg-white/95 backdrop-blur-sm py-3"
       )}
     >
-      <div className="container mx-auto flex items-center justify-between px-4">
+      <div className="max-w-7xl mx-auto flex items-center justify-between px-4">
         <nav className="flex items-center justify-between w-full">
-          {/* Logo Section - ปรับให้แสดงแค่สิ่งจำเป็นบนมือถือ */}
-          <Link href="/" className="flex items-center gap-3 group z-10">
-            <div className="relative flex items-center gap-3">
-              <img 
-                src="/img/sdnfutsal.png" 
-                alt="SDN Futsal Logo" 
-                className="w-8 h-8 md:w-10 md:h-10 object-cover"
-              />
-              <div className="relative">
-                <div className="flex items-center">
-                  <span className="font-semibold text-lg md:text-xl text-gray-900">SDN </span>
-                  <span className="font-semibold text-lg md:text-xl text-blue-600 ml-1">FUTSAL</span>
-                </div>
-                <div className="text-xs text-gray-600 -mt-1">Management System</div>
-              </div>
+          {/* Logo Section */}
+          <Link href="/" className="flex items-center gap-2 group z-10">
+            <img 
+              src="/img/sdnfutsal.png" 
+              alt="SDN Futsal Logo" 
+              className="w-7 h-7 md:w-8 md:h-8 object-cover"
+            />
+            <div className="flex items-center">
+              <span className="font-medium text-base md:text-lg text-gray-900">SDN</span>
+              <span className="font-medium text-base md:text-lg text-blue-600 ml-1">FUTSAL</span>
             </div>
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-2">
+          <div className="hidden lg:flex items-center space-x-1">
             {allNavItems.filter(shouldShowNavItem).map((link) => (
               <Link
                 key={link.name}
                 href={link.href}
                 className={cn(
-                  "group relative px-3 py-2 font-medium text-sm rounded-md transition-all duration-200 flex items-center gap-2",
+                  "group relative px-3 py-2 text-sm font-normal transition-colors duration-150 flex items-center gap-2 hover:text-blue-600",
                   pathname === link.href
-                    ? "bg-blue-50 text-blue-700 shadow-sm"
-                    : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                    ? "text-blue-600"
+                    : "text-gray-700"
                 )}
               >
                 <span className={cn(
-                  "transition-colors duration-200",
-                  pathname === link.href ? "text-blue-600" : "text-gray-500 group-hover:text-gray-700"
+                  "transition-colors duration-150",
+                  pathname === link.href ? "text-blue-600" : "text-gray-500 group-hover:text-blue-600"
                 )}>
                   {link.icon}
                 </span>
                 <span className="relative">
                   {link.name}
                 </span>
+                {pathname === link.href && (
+                  <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-blue-600 rounded-full"></div>
+                )}
               </Link>
             ))}
           </div>
 
           {/* User & Authentication Section */}
-          <div className="hidden md:flex items-center gap-4">
+          <div className="hidden lg:flex items-center gap-4">
             {/* Phone Number */}
-            <div className="flex items-center gap-2 text-gray-700 bg-gray-100/80 px-3 py-2 rounded-md">
-              <Phone size={16} className="text-blue-600" />
-              <span className="font-medium text-sm">095-914-1297</span>
+            <div className="flex items-center gap-2 text-gray-600">
+              <Phone size={14} className="text-gray-500" />
+              <span className="text-sm">095-914-1297</span>
             </div>
 
             {/* Authenticated User Profile */}
@@ -211,10 +209,10 @@ const Navbar = () => {
               <div className="relative" ref={profileRef}>
                 <button
                   type="button"
-                  className="flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-md text-gray-700 hover:bg-gray-50 transition-all shadow-sm"
+                  className="flex items-center gap-2 px-2 py-1 text-gray-700 hover:text-blue-600 transition-colors duration-150"
                   onClick={() => setIsProfileOpen(!isProfileOpen)}
                 >
-                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white overflow-hidden">
+                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white overflow-hidden">
                     {session.user?.image ? (
                       <img
                         src={session.user.image}
@@ -222,13 +220,13 @@ const Navbar = () => {
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <User size={14} />
+                      <User size={12} />
                     )}
                   </div>
-                  <span className="font-medium text-sm">
+                  <span className="text-sm">
                     {session.user?.firstName || session.user?.firstName?.split(' ')[0] || 'User'}
                   </span>
-                  <ChevronDown size={14} className="text-gray-500" />
+                  <ChevronDown size={12} className="text-gray-500" />
                 </button>
 
                 {/* Profile Dropdown */}
@@ -276,27 +274,25 @@ const Navbar = () => {
                 </AnimatePresence>
               </div>
             ) : isClient && status === "unauthenticated" ? (
-              <div>
-                <Link 
-                  href="/auth/signin"
-                  className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium transition-all duration-200 shadow-sm rounded-md"
-                >
-                  <User size={16} />
-                  <span>เข้าสู่ระบบ</span>
-                </Link>
-              </div>
+              <Link 
+                href="/auth/signin"
+                className="flex items-center gap-2 px-3 py-1 text-sm text-gray-700 hover:text-blue-600 transition-colors duration-150"
+              >
+                <User size={14} />
+                <span>เข้าสู่ระบบ</span>
+              </Link>
             ) : null}
           </div>
 
           {/* Mobile Menu Button */}
-          <div className="md:hidden" ref={menuRef}>
+          <div className="lg:hidden" ref={menuRef}>
             <button 
               type="button"
-              className="text-gray-700 p-2 rounded-md hover:bg-gray-100 transition-colors" 
+              className="text-gray-700 p-1 hover:text-blue-600 transition-colors" 
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               aria-label="Toggle navigation menu"
             >
-              {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
+              {isMenuOpen ? <X size={18} /> : <Menu size={18} />}
             </button>
           </div>
 
@@ -308,26 +304,34 @@ const Navbar = () => {
                 animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
                 transition={{ duration: 0.3 }}
-                className="fixed inset-0 z-[1000] mt-16 bg-white/95 backdrop-blur-md overflow-auto shadow-lg"
+                className="fixed inset-0 z-[1000] mt-12 bg-white/98 backdrop-blur-sm overflow-auto shadow-sm border-t border-gray-100"
               >
                 <div className="container mx-auto p-4">
                   <div className="flex flex-col">
-                    <div className="py-2 mb-3 border-b border-gray-200">
-                      <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">เมนูหลัก</p>
+                    <div className="py-3 mb-4 border-b border-gray-100">
+                      <p className="text-xs text-gray-500 uppercase tracking-wider">เมนูหลัก</p>
                     </div>
                     
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
+                    <div className="space-y-1 mb-6">
                       {allNavItems.filter(shouldShowNavItem).map((link) => (
                         <Link
                           key={link.name}
                           href={link.href}
-                          className="flex flex-col items-center p-3 rounded-lg bg-gray-50 hover:bg-gray-100 border border-gray-200 transition-colors"
+                          className={cn(
+                            "flex items-center gap-3 px-4 py-3 text-sm transition-colors duration-150",
+                            pathname === link.href
+                              ? "text-blue-600 bg-blue-50"
+                              : "text-gray-700 hover:text-blue-600 hover:bg-gray-50"
+                          )}
                           onClick={() => setIsMenuOpen(false)}
                         >
-                          <span className="text-blue-600 mb-2 p-2 bg-blue-50 rounded-full">
+                          <span className={cn(
+                            "transition-colors duration-150",
+                            pathname === link.href ? "text-blue-600" : "text-gray-500"
+                          )}>
                             {link.icon}
                           </span>
-                          <span className="text-gray-700 text-sm font-medium">{link.name}</span>
+                          <span>{link.name}</span>
                         </Link>
                       ))}
                     </div>
@@ -335,14 +339,14 @@ const Navbar = () => {
                     {/* Authentication Options - แสดงในเมนู drop-down */}
                     {isClient && (
                       <>
-                        <div className="py-2 mt-2 mb-3 border-b border-gray-200">
-                          <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">บัญชีผู้ใช้</p>
+                        <div className="py-2 mt-2 mb-3 border-t border-gray-100">
+                          <p className="text-xs text-gray-500 uppercase tracking-wider px-4">บัญชีผู้ใช้</p>
                         </div>
                         
                         {status === "authenticated" && session ? (
-                          <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                          <div className="px-4 py-3 bg-gray-50">
                             <div className="flex items-center gap-3 mb-3">
-                              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center overflow-hidden">
+                              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center overflow-hidden">
                                 {session.user?.image ? (
                                   <img
                                     src={session.user.image}
@@ -350,43 +354,42 @@ const Navbar = () => {
                                     className="w-full h-full object-cover"
                                   />
                                 ) : (
-                                  <User size={24} className="text-white" />
+                                  <User size={16} className="text-white" />
                                 )}
                               </div>
                               <div>
-                                <p className="text-gray-900 font-medium">{session.user?.firstName} {session.user?.lastName}</p>
+                                <p className="text-gray-900 text-sm font-medium">{session.user?.firstName} {session.user?.lastName}</p>
                                 <p className="text-xs text-gray-600 truncate">{session.user?.email}</p>
                               </div>
                             </div>
                             
-                            <div className="grid grid-cols-1 gap-2">
+                            <div className="space-y-1">
                               <Link
                                 href="/dashboard/profile"
-                                className="flex items-center justify-center gap-2 p-2 rounded-md bg-white hover:bg-gray-100 text-gray-700 text-sm border border-gray-200"
+                                className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:text-blue-600 hover:bg-white transition-colors duration-150"
                                 onClick={() => setIsMenuOpen(false)}
                               >
-                                <User size={16} className="text-blue-600" />
+                                <User size={16} className="text-gray-500" />
                                 <span>โปรไฟล์</span>
                               </Link>
+                              <button
+                                type="button"
+                                onClick={handleSignOut}
+                                className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-white transition-colors duration-150"
+                              >
+                                <LogOut size={16} />
+                                <span>ออกจากระบบ</span>
+                              </button>
                             </div>
-                            
-                            <button
-                              type="button"
-                              onClick={handleSignOut}
-                              className="w-full mt-3 flex items-center justify-center gap-2 p-2 rounded-md bg-red-50 hover:bg-red-100 text-red-600 text-sm border border-red-200"
-                            >
-                              <LogOut size={16} />
-                              <span>ออกจากระบบ</span>
-                            </button>
                           </div>
                         ) : status === "unauthenticated" ? (
-                          <div>
+                          <div className="px-4 py-3">
                             <Link
                               href="/auth/signin"
-                              className="flex items-center justify-center gap-2 p-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors"
+                              className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:text-blue-600 hover:bg-gray-50 transition-colors duration-150"
                               onClick={() => setIsMenuOpen(false)}
                             >
-                              <User size={18} />
+                              <User size={16} className="text-gray-500" />
                               <span>เข้าสู่ระบบ</span>
                             </Link>
                           </div>

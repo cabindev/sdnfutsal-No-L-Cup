@@ -60,6 +60,7 @@ export default function TopNav({ user }: TopNavProps) {
   
   // Define navigation tabs
   const navTabs = [
+    { href: 'https://sdnfutsal.com', text: 'หน้าแรก', icon: Home, external: true },
     { href: '/dashboard', text: 'ภาพรวม', icon: Home },
     { href: '/dashboard/coach', text: 'โค้ช', icon: Award },
     { href: '/dashboard/training', text: 'การอบรม', icon: GraduationCap }
@@ -110,10 +111,26 @@ export default function TopNav({ user }: TopNavProps) {
           <div className="hidden md:flex items-center space-x-1">
             {navTabs.map((tab) => {
               const Icon = tab.icon;
-              const isActive =
-                tab.href === "/dashboard"
+              const isActive = tab.external 
+                ? false 
+                : tab.href === "/dashboard"
                   ? pathname === "/dashboard"
                   : pathname?.startsWith(tab.href);
+
+              if (tab.external) {
+                return (
+                  <a
+                    key={tab.href}
+                    href={tab.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center px-3 py-2 text-sm font-medium rounded-md transition-all text-gray-600 hover:bg-gray-100 hover:text-gray-800"
+                  >
+                    <Icon className="mr-1.5 h-4 w-4 text-gray-500" />
+                    {tab.text}
+                  </a>
+                );
+              }
 
               return (
                 <Link
