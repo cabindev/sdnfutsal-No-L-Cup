@@ -28,168 +28,143 @@ const Hero = () => {
   }, []);
 
   return (
-    <div className="relative w-full h-screen overflow-hidden bg-[#2c2f72]">
-      {/* เอฟเฟกต์ gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-[#2c2f72]/30 to-[#2c2f72]/70 z-[1]" />
+    <div className="relative w-full h-screen overflow-hidden bg-gradient-to-br from-blue-700 via-blue-500 to-cyan-300">
+      {/* เอฟเฟกต์ gradient overlay แบบไดนามิก */}
+      <div className="absolute inset-0 bg-gradient-to-t from-white/40 via-transparent to-blue-900/30 z-[1]" />
 
-      {/* ข้อความขนาดใหญ่ด้านหลังพร้อมเอฟเฟกต์เรืองแสงนีออน - เปลี่ยนเป็นรูปแบบเดียวกันกับบนมือถือ */}
+      {/* Animated gradient orbs */}
       <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: isLoaded ? 1 : 0 }}
-        transition={{ duration: 1.5, delay: 0.5 }}
-        className="absolute inset-0 flex items-center justify-center z-[2]"
-      >
-        <motion.h1
-          className="text-[15vw] font-extrabold text-white/5 select-none tracking-tighter"
-          initial={{ opacity: 0.05 }}
-          animate={{
-            opacity: [0.05, 0.1, 0.05],
-            textShadow: [
-              "0 0 5px rgba(255, 255, 255, 0.2), 0 0 20px rgba(50, 150, 255, 0.2)",
-              "0 0 10px rgba(255, 255, 255, 0.3), 0 0 30px rgba(50, 150, 255, 0.3)",
-              "0 0 5px rgba(255, 255, 255, 0.2), 0 0 20px rgba(50, 150, 255, 0.2)",
-            ],
-          }}
-          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-          style={{
-            WebkitTextStroke: "1px rgba(255, 255, 255, 0.1)",
-          }}
-        >
-          THE COACH
-        </motion.h1>
-      </motion.div>
+        className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-radial from-cyan-400/30 to-transparent rounded-full blur-3xl"
+        animate={{
+          scale: [1, 1.2, 1],
+          opacity: [0.3, 0.5, 0.3],
+        }}
+        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+      />
+      <motion.div
+        className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-gradient-radial from-blue-400/30 to-transparent rounded-full blur-3xl"
+        animate={{
+          scale: [1.2, 1, 1.2],
+          opacity: [0.5, 0.3, 0.5],
+        }}
+        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+      />
+
+      {/* Grid pattern overlay */}
+      <div className="absolute inset-0 z-[2] opacity-10"
+        style={{
+          backgroundImage: `linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
+                           linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)`,
+          backgroundSize: '50px 50px'
+        }}
+      />
+
+      {/* โลโก้พื้นหลังขนาดใหญ่ */}
+      <div className="absolute inset-0 z-[2] flex items-center justify-center opacity-10">
+        <div className="relative w-[800px] h-[800px] md:w-[1200px] md:h-[1200px]">
+          <Image
+            src="/img/sdnfutsal.png"
+            alt="SDN Futsal Background"
+            fill
+            className="object-contain"
+            sizes="(max-width: 768px) 800px, 1200px"
+          />
+        </div>
+      </div>
+
+      {/* โลโก้ SDN Futsal ที่มุมขวาบน */}
+      <div className="absolute top-8 right-8 z-[5]">
+        <div className="relative w-24 h-24 md:w-32 md:h-32">
+          <Image
+            src="/img/sdnfutsal.png"
+            alt="SDN Futsal Logo"
+            fill
+            className="object-contain"
+            sizes="(max-width: 768px) 96px, 128px"
+          />
+        </div>
+      </div>
 
       {/* Container สำหรับรูปภาพ */}
       <div className="container mx-auto h-full flex items-center justify-center z-[3] relative">
         {isMobile ? (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="absolute inset-0 flex flex-col items-center justify-center"
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="absolute inset-0 flex items-center justify-center"
           >
-            {/* รูปคนโค้ช */}
-            <Image
-              src="/img/C4.png"
-              alt="THE COACH"
-              className="object-contain w-full h-full"
-              priority
-              sizes="100vw"
-              fill
-              style={{
-                filter: "drop-shadow(0 0 15px rgba(0, 0, 0, 0.5))",
-              }}
-            />
-
-            {/* โลโก้ THE COACH สำหรับมือถือ - ปรับตำแหน่งให้สูงขึ้น */}
+            {/* รูปคนโค้ช พร้อม glow effect */}
             <motion.div
-              className="absolute top-[65%] left-0 right-0 flex justify-center items-center z-20 px-4" // เพิ่ม px-4 สำหรับ padding ข้าง
-              initial={{ y: 50, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 1, delay: 1.5 }}
+              className="relative w-full h-full"
+              animate={{
+                filter: [
+                  "drop-shadow(0 0 20px rgba(59, 130, 246, 0.5))",
+                  "drop-shadow(0 0 40px rgba(59, 130, 246, 0.7))",
+                  "drop-shadow(0 0 20px rgba(59, 130, 246, 0.5))",
+                ]
+              }}
+              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
             >
+              <Image
+                src="/img/sdnmobile.png"
+                alt="THE COACH"
+                className="object-contain"
+                priority
+                sizes="100vw"
+                fill
+              />
+            </motion.div>
+          </motion.div>
+        ) : (
+          // สำหรับเดสก์ท็อป
+          <motion.div
+            initial={{ y: 100, opacity: 0, scale: 0.9 }}
+            animate={{ y: isLoaded ? 0 : 100, opacity: isLoaded ? 1 : 0, scale: isLoaded ? 1 : 0.9 }}
+            transition={{ duration: 1, type: "spring", stiffness: 80, damping: 15 }}
+            className="relative z-10 w-full max-w-[85%] lg:max-w-[1400px]"
+          >
+            <motion.div
+              className="relative w-full h-full"
+              whileHover={{ scale: 1.03, rotateZ: 0.5 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            >
+              {/* Glow effect background */}
               <motion.div
-                className="max-w-[180px] w-full" // ลดขนาดเล็กน้อยสำหรับมือถือ
-                whileHover={{ scale: 1.05 }}
-                transition={{ type: "spring", stiffness: 300 }}
+                className="absolute inset-0 rounded-3xl blur-3xl opacity-50"
+                animate={{
+                  background: [
+                    "radial-gradient(circle, rgba(59,130,246,0.6) 0%, transparent 70%)",
+                    "radial-gradient(circle, rgba(34,211,238,0.6) 0%, transparent 70%)",
+                    "radial-gradient(circle, rgba(59,130,246,0.6) 0%, transparent 70%)",
+                  ]
+                }}
+                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+              />
+
+              <motion.div
+                animate={{
+                  filter: [
+                    "drop-shadow(0 10px 30px rgba(59, 130, 246, 0.4))",
+                    "drop-shadow(0 20px 60px rgba(34, 211, 238, 0.6))",
+                    "drop-shadow(0 10px 30px rgba(59, 130, 246, 0.4))",
+                  ]
+                }}
+                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
               >
                 <Image
-                  src="/img/the coach.png"
+                  src="/img/ArtPlayer.png"
                   alt="THE COACH"
-                  width={300}
-                  height={150}
-                  className="w-full h-auto object-contain"
-                  style={{
-                    filter: "drop-shadow(0 0 10px rgba(238, 105, 37, 0.7))",
-                  }}
+                  width={1920}
+                  height={1080}
+                  className="object-contain w-full h-full relative z-10"
+                  priority
+                  sizes="(max-width: 1200px) 85vw, 1400px"
                 />
               </motion.div>
             </motion.div>
           </motion.div>
-        ) : (
-          // สำหรับเดสก์ท็อป ใช้ COACH2025.png
-          <motion.div
-            initial={{ y: 100, opacity: 0 }}
-            animate={{ y: isLoaded ? 0 : 100, opacity: isLoaded ? 1 : 0 }}
-            transition={{ duration: 1, type: "spring", stiffness: 100 }}
-            className="relative z-10 w-full max-w-[80%] md:max-w-[90%] lg:max-w-[1400px]"
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 1.2 }}
-              className="relative w-full h-full"
-              whileHover={{ scale: 1.02 }}
-            >
-              <Image
-                src="/img/COACH2025.png"
-                alt="THE COACH"
-                width={1920}
-                height={1080}
-                className="object-contain w-full h-full relative z-10"
-                priority
-                sizes="(max-width: 1200px) 85vw, 1400px"
-                style={{
-                  filter: "drop-shadow(0 0 15px rgba(0, 0, 0, 0.5))",
-                }}
-              />
-
-              {/* โลโก้ SDN FUTSAL แทนข้อความ */}
-              <motion.div
-                className="absolute bottom-[10%] left-0 right-0 flex justify-center items-center z-20"
-                initial={{ y: 50, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ duration: 1, delay: 1.5 }}
-              >
-                <motion.div
-                  className="max-w-[300px] w-full"
-                  whileHover={{ scale: 1.05 }}
-                  transition={{ type: "spring", stiffness: 300 }}
-                >
-                  <Image
-                    src="/img/the coach.png"
-                    alt="SDN FUTSAL NO-L CUP"
-                    width={300}
-                    height={150}
-                    className="w-full h-auto object-contain"
-                    style={{
-                      filter: "drop-shadow(0 0 10px rgba(238, 105, 37, 0.7))",
-                    }}
-                  />
-                </motion.div>
-              </motion.div>
-            </motion.div>
-          </motion.div>
         )}
-
-        <motion.div
-          className="absolute bottom-[5%] left-0 right-0 flex justify-center items-center z-20"
-          initial={{ y: 50, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 1, delay: 2 }}
-        >
-          <motion.a
-            href="#registration"
-            className="bg-futsal-orange hover:bg-futsal-orange-dark text-white font-bold py-3 px-8 rounded-full 
-               text-lg shadow-lg hover:shadow-xl transform transition-transform hover:scale-105 
-               flex items-center gap-2"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <span>สมัครอบรมโค้ชฟุตซอล</span>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fillRule="evenodd"
-                d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v3.586L7.707 9.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 10.586V7z"
-                clipRule="evenodd"
-              />
-            </svg>
-          </motion.a>
-        </motion.div>
       </div>
 
       {/* เอฟเฟกต์พาร์ติเคิลด้านหลัง */}
@@ -201,43 +176,49 @@ const Hero = () => {
   );
 };
 
-// คอมโพเนนต์ย่อยสำหรับเอฟเฟกต์พาร์ติเคิล
+// คอมโพเนนต์ย่อยสำหรับเอฟเฟกต์พาร์ติเคิลแบบมืออาชีพ
 const Particles = () => {
-  // โค้ดส่วนนี้ไม่มีการเปลี่ยนแปลง
-  const particles = Array.from({ length: 15 }).map((_, i) => ({
+  const particles = Array.from({ length: 25 }).map((_, i) => ({
     id: i,
-    initialX: `${(i * 5) % 100}%`,
-    initialY: `${(i * 7) % 100}%`,
-    scale: 0.5 + (i % 10) / 10,
-    duration: 15 + (i % 20)
+    initialX: `${(i * 7) % 100}%`,
+    initialY: `${(i * 11) % 100}%`,
+    scale: 0.3 + (i % 15) / 15,
+    duration: 20 + (i % 30),
+    delay: (i * 0.3) % 3
   }));
 
   return (
-    <div className="absolute inset-0 z-[2]">
+    <div className="absolute inset-0 z-[2] pointer-events-none">
       {particles.map((particle) => (
         <motion.div
           key={particle.id}
-          className="absolute w-2 h-2 rounded-full bg-blue-200 opacity-60"
+          className="absolute rounded-full"
+          style={{
+            background: particle.id % 3 === 0
+              ? 'radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(59,130,246,0.4) 100%)'
+              : particle.id % 3 === 1
+              ? 'radial-gradient(circle, rgba(34,211,238,0.6) 0%, rgba(59,130,246,0.2) 100%)'
+              : 'radial-gradient(circle, rgba(147,197,253,0.5) 0%, transparent 100%)',
+            width: `${4 + (particle.id % 8)}px`,
+            height: `${4 + (particle.id % 8)}px`,
+          }}
           initial={{
             x: particle.initialX,
             y: particle.initialY,
-            scale: particle.scale,
+            scale: 0,
+            opacity: 0
           }}
           animate={{
-            y: [`${(particle.id * 3) % 100}%`, `${(particle.id * 7) % 100}%`],
-            x: [`${(particle.id * 9) % 100}%`, `${(particle.id * 5) % 100}%`],
-            opacity: [0.2, 0.6, 0.2],
-            boxShadow: [
-              '0 0 3px rgba(100, 200, 255, 0.3)',
-              '0 0 5px rgba(100, 200, 255, 0.7)',
-              '0 0 3px rgba(100, 200, 255, 0.3)'
-            ]
+            y: [`${(particle.id * 3) % 100}%`, `${(particle.id * 13) % 100}%`, `${(particle.id * 3) % 100}%`],
+            x: [`${(particle.id * 11) % 100}%`, `${(particle.id * 7) % 100}%`, `${(particle.id * 11) % 100}%`],
+            scale: [particle.scale, particle.scale * 1.5, particle.scale],
+            opacity: [0, 0.8, 0],
           }}
           transition={{
             duration: particle.duration,
             repeat: Infinity,
-            ease: "linear",
-            delay: particle.id * 0.2 % 2
+            ease: "easeInOut",
+            delay: particle.delay
           }}
         />
       ))}

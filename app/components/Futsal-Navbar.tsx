@@ -37,10 +37,10 @@ const Navbar = () => {
     setIsClient(true);
   }, []);
 
-  // ตรวจสอบการเลื่อนหน้าจอ
+  // ตรวจสอบการเลื่อนหน้าจอ - ซ่อน navbar ตอนอยู่ด้านบนสุด
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 20) {
+      if (window.scrollY > 100) {
         setIsScrolled(true);
       } else {
         setIsScrolled(false);
@@ -144,11 +144,17 @@ const Navbar = () => {
     : "";
 
   return (
-    <header 
+    <motion.header
+      initial={{ y: -100, opacity: 0 }}
+      animate={{
+        y: isScrolled ? 0 : -100,
+        opacity: isScrolled ? 1 : 0
+      }}
+      transition={{ duration: 0.3, ease: "easeInOut" }}
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-200",
-        isScrolled 
-          ? "bg-white/98 backdrop-blur-sm shadow-sm border-b border-gray-100 py-2" 
+        isScrolled
+          ? "bg-white/98 backdrop-blur-sm shadow-sm border-b border-gray-100 py-2"
           : "bg-white/95 backdrop-blur-sm py-3"
       )}
     >
@@ -198,12 +204,6 @@ const Navbar = () => {
 
           {/* User & Authentication Section */}
           <div className="hidden lg:flex items-center gap-4">
-            {/* Phone Number */}
-            <div className="flex items-center gap-2 text-gray-600">
-              <Phone size={14} className="text-gray-500" />
-              <span className="text-sm">095-914-1297</span>
-            </div>
-
             {/* Authenticated User Profile */}
             {isClient && status === "authenticated" && session ? (
               <div className="relative" ref={profileRef}>
@@ -403,7 +403,7 @@ const Navbar = () => {
           </AnimatePresence>
         </nav>
       </div>
-    </header>
+    </motion.header>
   );
 };
 
