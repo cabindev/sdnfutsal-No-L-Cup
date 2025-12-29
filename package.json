@@ -6,7 +6,13 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "security:check": "./scripts/security-check.sh",
+    "pm2:start": "pm2 start ecosystem.config.js",
+    "pm2:stop": "pm2 stop sdnfutsal",
+    "pm2:restart": "pm2 restart sdnfutsal",
+    "pm2:logs": "pm2 logs sdnfutsal",
+    "pm2:monit": "pm2 monit"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
