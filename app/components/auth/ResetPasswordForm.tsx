@@ -25,7 +25,7 @@ export default function ResetPasswordForm() {
   }, []);
 
   const validatePassword = (password: string) => {
-    return password.length >= 5;
+    return password.length >= 8 && /[a-z]/.test(password) && /[A-Z]/.test(password) && /[0-9]/.test(password);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -34,7 +34,7 @@ export default function ResetPasswordForm() {
     setMessage('');
 
     if (!validatePassword(password)) {
-      setMessage('รหัสผ่านต้องมีความยาวอย่างน้อย 5 ตัวอักษร');
+      setMessage('รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร ประกอบด้วยตัวพิมพ์เล็ก ตัวพิมพ์ใหญ่ และตัวเลข');
       setIsSuccess(false);
       setIsLoading(false);
       return;
@@ -128,7 +128,7 @@ export default function ResetPasswordForm() {
                   type={showPassword ? "text" : "password"}
                   required
                   className="pl-10 w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#FFA500]/50 focus:border-[#FFA500]/50 transition-all"
-                  placeholder="รหัสผ่านใหม่ (อย่างน้อย 5 ตัวอักษร)"
+                  placeholder="รหัสผ่านใหม่ (อย่างน้อย 8 ตัวอักษร)"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />

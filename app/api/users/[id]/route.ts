@@ -11,10 +11,31 @@ type RouteParams = {
 // สำหรับดึงข้อมูลผู้ใช้รายคน
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return NextResponse.json({ error: 'กรุณาเข้าสู่ระบบ' }, { status: 401 });
+    }
+
     const { id } = await params;
     const userId = Number(id);
+
+    // อนุญาตให้ดูข้อมูลตัวเองหรือ ADMIN ดูได้ทุกคน
+    if (session.user.id !== userId && session.user.role !== 'ADMIN') {
+      return NextResponse.json({ error: 'ไม่มีสิทธิ์เข้าถึง' }, { status: 403 });
+    }
+
     const user = await prisma.user.findUnique({
       where: { id: userId },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        image: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+      },
     });
 
     if (!user) {

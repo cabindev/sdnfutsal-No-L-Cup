@@ -250,8 +250,24 @@ export default function SignUpForm() {
          
          <h1 className="text-2xl font-bold text-white text-center mb-2">สมัครสมาชิก</h1>
          <p className="text-gray-300 text-center mb-6 text-sm">เข้าถึงบริการและข้อมูลเอกสารต่างๆ ได้ง่ายขึ้น</p>
-         
-         <form className="space-y-5" onSubmit={handleSubmit}>
+
+         {/* แจ้งเตือนปิดระบบสมัครสมาชิก */}
+         <motion.div
+           initial={{ opacity: 0, scale: 0.95 }}
+           animate={{ opacity: 1, scale: 1 }}
+           transition={{ duration: 0.4 }}
+           className="mb-6 p-5 rounded-xl bg-[#FFA500]/10 border border-[#FFA500]/30 text-center"
+         >
+           <div className="flex justify-center mb-3">
+             <div className="w-12 h-12 rounded-full bg-[#FFA500]/20 flex items-center justify-center">
+               <AlertCircle size={24} className="text-[#FFA500]" />
+             </div>
+           </div>
+           <h2 className="text-lg font-semibold text-[#FFA500] mb-2">ระบบสมัครสมาชิกปิดให้บริการชั่วคราว</h2>
+           <p className="text-gray-300 text-sm">ขณะนี้ระบบสมัครสมาชิกปิดให้บริการชั่วคราว หากต้องการสมัครสมาชิก กรุณาติดต่อผู้ดูแลระบบ</p>
+         </motion.div>
+
+         <div className="space-y-5">
            <div className="grid grid-cols-2 gap-4">
              <div className="space-y-1">
                <label htmlFor="firstName" className="block text-gray-200 text-sm font-medium">
@@ -265,11 +281,9 @@ export default function SignUpForm() {
                    id="firstName"
                    type="text"
                    name="firstName"
-                   required
-                   className="pl-10 w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#FFA500]/50 focus:border-[#FFA500]/50 transition-all"
+                   disabled
+                   className="pl-10 w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white/50 cursor-not-allowed"
                    placeholder="ชื่อ"
-                   value={formData.firstName}
-                   onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
                  />
                </div>
              </div>
@@ -282,11 +296,9 @@ export default function SignUpForm() {
                  id="lastName"
                  type="text"
                  name="lastName"
-                 required
-                 className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#FFA500]/50 focus:border-[#FFA500]/50 transition-all"
+                 disabled
+                 className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white/50 cursor-not-allowed"
                  placeholder="นามสกุล"
-                 value={formData.lastName}
-                 onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
                />
              </div>
            </div>
@@ -303,11 +315,9 @@ export default function SignUpForm() {
                  id="email"
                  type="email"
                  name="email"
-                 required
-                 className="pl-10 w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#FFA500]/50 focus:border-[#FFA500]/50 transition-all"
+                 disabled
+                 className="pl-10 w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white/50 cursor-not-allowed"
                  placeholder="your@email.com"
-                 value={formData.email}
-                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                />
              </div>
            </div>
@@ -324,106 +334,21 @@ export default function SignUpForm() {
                  id="password"
                  type="password"
                  name="password"
-                 required
-                 className="pl-10 w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#FFA500]/50 focus:border-[#FFA500]/50 transition-all"
-                 placeholder="รหัสผ่าน (อย่างน้อย 5 ตัวอักษร)"
-                 value={formData.password}
-                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                 disabled
+                 className="pl-10 w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white/50 cursor-not-allowed"
+                 placeholder="รหัสผ่าน"
                />
              </div>
-             <p className="mt-1 text-xs text-gray-400">รหัสผ่านต้องมีความยาวอย่างน้อย 5 ตัวอักษร</p>
            </div>
 
-           <div className="space-y-1">
-             <label htmlFor="image" className="block text-gray-200 text-sm font-medium">
-               รูปโปรไฟล์ <span className="text-gray-400 text-xs">(ไม่บังคับ)</span>
-             </label>
-             <div className="flex items-center space-x-4">
-               <div className={`flex-shrink-0 w-16 h-16 rounded-full overflow-hidden ${
-                 imagePreview ? 'border-2 border-[#FFA500]/50' : 'bg-white/10'
-               } flex items-center justify-center`}>
-                 {imagePreview ? (
-                   <Image 
-                     src={imagePreview} 
-                     alt="Profile Preview" 
-                     width={64} 
-                     height={64} 
-                     className="object-cover w-full h-full"
-                   />
-                 ) : (
-                   <User size={24} className="text-gray-400" />
-                 )}
-               </div>
-               
-               <div className="flex-1">
-                 <label 
-                   htmlFor="image-upload" 
-                   className={`flex items-center justify-center px-4 py-2 rounded-lg border border-dashed border-white/30 bg-white/5 text-white cursor-pointer hover:bg-white/10 transition-all ${
-                     compressing ? 'opacity-50 cursor-not-allowed' : ''
-                   }`}
-                 >
-                   <Upload size={16} className="mr-2" />
-                   <span className="text-sm">{imagePreview ? 'เปลี่ยนรูปภาพ' : 'อัพโหลดรูปภาพ'}</span>
-                   <input
-                     id="image-upload"
-                     type="file"
-                     name="image"
-                     accept="image/jpeg,image/png,image/webp"
-                     onChange={handleImageChange}
-                     disabled={compressing}
-                     className="hidden"
-                   />
-                 </label>
-                 
-                 {compressing && (
-                   <p className="mt-2 text-xs text-[#FFA500] flex items-center">
-                     <svg className="animate-spin mr-2 h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                     </svg>
-                     กำลังประมวลผลรูปภาพ...
-                   </p>
-                 )}
-                 <p className="mt-1 text-xs text-gray-400">รองรับไฟล์ JPG, PNG, WEBP (ไม่เกิน 5MB)</p>
-               </div>
-             </div>
-           </div>
-
-           {error && (
-             <motion.div 
-               initial={{ opacity: 0, y: -10 }} 
-               animate={{ opacity: 1, y: 0 }}
-               className="flex items-start p-4 rounded-lg bg-red-500/20 border border-red-500/50"
-             >
-               <AlertCircle size={18} className="text-red-400 flex-shrink-0" />
-               <p className="ml-3 text-sm text-white">{error}</p>
-             </motion.div>
-           )}
-           
            <button
-             type="submit"
-             disabled={isLoading || compressing}
-             className={`w-full py-3 rounded-lg font-medium text-white transition-all ${
-               isLoading || compressing
-                 ? "bg-[#FFA500]/50 cursor-not-allowed" 
-                 : "bg-gradient-to-r from-[#FFA500] to-[#FF6B00] hover:from-[#FF6B00] hover:to-[#FFA500] shadow-lg hover:shadow-[#FFA500]/20"
-             }`}
+             type="button"
+             disabled
+             className="w-full py-3 rounded-lg font-medium text-white/50 bg-white/10 cursor-not-allowed"
            >
-             {isLoading ? (
-               <div className="flex items-center justify-center">
-                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                 กำลังดำเนินการ...
-               </div>
-             ) : compressing ? (
-               <div className="flex items-center justify-center">
-                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                 กำลังประมวลผลรูปภาพ...
-               </div>
-             ) : (
-               "สมัครสมาชิก"
-             )}
+             ปิดรับสมัครสมาชิก
            </button>
-         </form>
+         </div>
          
          <div className="mt-6 text-center">
            <p className="text-gray-300 text-sm">

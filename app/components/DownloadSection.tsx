@@ -45,7 +45,7 @@ export default function DownloadSection() {
         </motion.div>
 
         {/* Download Buttons with enhanced design */}
-        <div className="grid md:grid-cols-2 gap-6 mb-8">
+        <div className="grid md:grid-cols-1 gap-6 max-w-lg mx-auto mb-8">
           {/* คู่มือการแข่งขัน */}
           <motion.a
             href="https://drive.google.com/file/d/14U7FqNtv9laByNj-vX9BZm6e9p7b0Uoj/view?usp=sharing"
@@ -97,58 +97,6 @@ export default function DownloadSection() {
             </div>
           </motion.a>
 
-          {/* ใบสมัครเข้าร่วมการแข่งขัน */}
-          <motion.a
-            href="https://docs.google.com/document/d/1wc35n4wu-9qwnk6sDXrW2VJjpNftoAYc/edit"
-            target="_blank"
-            rel="noopener noreferrer"
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            whileHover={{ scale: 1.03, y: -5 }}
-            whileTap={{ scale: 0.98 }}
-            className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-orange-500 to-amber-500 p-[2px] shadow-lg hover:shadow-2xl transition-all duration-300"
-          >
-            {/* Animated gradient border */}
-            <motion.div
-              className="absolute inset-0 bg-gradient-to-r from-orange-400 via-amber-400 to-orange-400"
-              animate={{
-                backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
-              }}
-              transition={{ duration: 3, repeat: Infinity, delay: 0.5 }}
-            />
-
-            <div className="relative bg-white rounded-2xl p-6 h-full flex items-center gap-4">
-              {/* Icon with glow */}
-              <div className="relative">
-                <div className="absolute inset-0 bg-orange-500/30 rounded-xl blur-lg group-hover:blur-xl transition-all" />
-                <div className="relative flex-shrink-0 w-14 h-14 bg-gradient-to-br from-orange-500 to-amber-500 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                  <FileText className="w-7 h-7 text-white" />
-                </div>
-              </div>
-
-              <div className="flex-1 min-w-0">
-                <h3 className="text-base font-bold text-gray-900 mb-1 flex items-center gap-2">
-                  ใบสมัครเข้าร่วมการแข่งขัน
-                  <motion.div>
-                  </motion.div>
-                </h3>
-                <p className="text-sm text-gray-600">
-                  SDN FUTSAL NO-L CUP 2026 ครั้งที่ 8
-                </p>
-              </div>
-
-              {/* Download icon with animation */}
-              <motion.div
-                className="flex-shrink-0"
-                animate={{ y: [0, -5, 0] }}
-                transition={{ duration: 1.5, repeat: Infinity, delay: 0.3 }}
-              >
-                <Download className="w-6 h-6 text-orange-500 group-hover:text-orange-600" />
-              </motion.div>
-            </div>
-          </motion.a>
         </div>
 
         {/* Info Note with better styling */}

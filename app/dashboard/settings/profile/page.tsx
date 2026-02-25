@@ -292,11 +292,22 @@ export default function ProfileSettingPage() {
                         e.currentTarget.style.display = 'none';
                         const parent = e.currentTarget.parentElement;
                         if (parent) {
-                          parent.innerHTML = `<div class="h-full w-full flex items-center justify-center bg-gray-200">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-12 w-12 text-gray-400">
-                              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
-                            </svg>
-                          </div>`;
+                          // สร้าง DOM elements แทนการใช้ innerHTML เพื่อป้องกัน XSS
+                          const fallbackDiv = document.createElement('div');
+                          fallbackDiv.className = 'h-full w-full flex items-center justify-center bg-gray-200';
+                          const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                          svg.setAttribute('fill', 'none');
+                          svg.setAttribute('viewBox', '0 0 24 24');
+                          svg.setAttribute('stroke-width', '1.5');
+                          svg.setAttribute('stroke', 'currentColor');
+                          svg.setAttribute('class', 'h-12 w-12 text-gray-400');
+                          const pathEl = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                          pathEl.setAttribute('stroke-linecap', 'round');
+                          pathEl.setAttribute('stroke-linejoin', 'round');
+                          pathEl.setAttribute('d', 'M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z');
+                          svg.appendChild(pathEl);
+                          fallbackDiv.appendChild(svg);
+                          parent.replaceChildren(fallbackDiv);
                         }
                       }}
                     />

@@ -78,19 +78,14 @@ export async function updateCoach(formData: FormData): Promise<ActionResult> {
     const province = formData.get('province') as string;
     const zone = formData.get('zone') as string || null;
     
-    console.log("Location data from form:", { district, amphoe, province, zone });
-    
     // ดึงข้อมูลรุ่นที่เลือก
     let selectedBatchIds: number[] = [];
     
     // กรณีส่งมาเป็น array ในชื่อ selectedBatchIds[]
     const batchIdsFromArray = formData.getAll('selectedBatchIds[]');
-    console.log("BatchIds from array:", batchIdsFromArray);
-    
     if (batchIdsFromArray.length > 0) {
       // ตรวจสอบกรณีที่มีการส่งค่าว่างมา (สำหรับกรณีไม่เลือกรุ่นใดๆ)
       if (batchIdsFromArray.length === 1 && batchIdsFromArray[0] === '') {
-        console.log("Empty batch ID array detected");
         selectedBatchIds = [];
       } else {
         for (const idValue of batchIdsFromArray) {
@@ -125,8 +120,6 @@ export async function updateCoach(formData: FormData): Promise<ActionResult> {
       }
     }
     
-    console.log("Selected batch IDs after processing:", selectedBatchIds);
-    
     // ตรวจสอบข้อมูลที่จำเป็น
     if (!gender || !idCardNumber || !address || !phoneNumber || !religion || 
         !foodPreference || !coachStatus || !shirtSize || !district || !amphoe || !province) {
@@ -158,11 +151,8 @@ export async function updateCoach(formData: FormData): Promise<ActionResult> {
         }
       });
       
-      console.log("Found existing location:", location);
-      
       // ถ้าไม่พบ ให้สร้างใหม่
       if (!location) {
-        console.log("Creating new location with zone:", zone);
         location = await prisma.location.create({
           data: {
             district,
@@ -174,7 +164,6 @@ export async function updateCoach(formData: FormData): Promise<ActionResult> {
       } 
       // ถ้าพบแล้วแต่ค่า zone ไม่ตรงกัน ให้อัพเดทค่า zone
       else if (location.zone !== zone) {
-        console.log(`Updating location zone from "${location.zone}" to "${zone}"`);
         location = await prisma.location.update({
           where: { id: location.id },
           data: { zone }
@@ -208,8 +197,6 @@ export async function updateCoach(formData: FormData): Promise<ActionResult> {
       locationId: location?.id,
     };
     
-    console.log("Updating coach with data:", coachData);
-    
     // อัพเดทข้อมูลโค้ช
     const coach = await prisma.coach.update({
       where: { id: coachId },
@@ -227,9 +214,6 @@ export async function updateCoach(formData: FormData): Promise<ActionResult> {
       }
     });
     
-    console.log("Updated coach, processing batch registrations...");
-    console.log("Selected batch IDs:", selectedBatchIds);
-    
     // จัดการการลงทะเบียนรุ่น (BatchParticipant)
     if (selectedBatchIds.length > 0) {
       // ตรวจสอบว่ารุ่นมีอยู่จริงหรือไม่
@@ -245,7 +229,6 @@ export async function updateCoach(formData: FormData): Promise<ActionResult> {
       });
       
       const validBatchIds = existingBatches.map(batch => batch.id);
-      console.log("Valid batch IDs:", validBatchIds);
       
       if (validBatchIds.length > 0) {
         // ดึงข้อมูลการลงทะเบียนที่มีอยู่แล้ว
@@ -259,7 +242,6 @@ export async function updateCoach(formData: FormData): Promise<ActionResult> {
         });
         
         const existingBatchIds = existingRegistrations.map(reg => reg.batchId);
-        console.log("Existing registrations:", existingBatchIds);
         
         // หา batchId ที่ต้องเพิ่มใหม่
         const batchIdsToAdd = validBatchIds.filter(id => !existingBatchIds.includes(id));
@@ -267,13 +249,9 @@ export async function updateCoach(formData: FormData): Promise<ActionResult> {
         // หา batchId ที่ต้องลบออก
         const batchIdsToRemove = existingBatchIds.filter(id => !validBatchIds.includes(id));
         
-        console.log("Batch IDs to add:", batchIdsToAdd);
-        console.log("Batch IDs to remove:", batchIdsToRemove);
-        
         // สร้างข้อมูลการลงทะเบียนใหม่
         if (batchIdsToAdd.length > 0) {
           for (const batchId of batchIdsToAdd) {
-            console.log(`Creating registration for batch ${batchId}`);
             await prisma.batchParticipant.create({
               data: {
                 coachId: coachId,
@@ -287,7 +265,6 @@ export async function updateCoach(formData: FormData): Promise<ActionResult> {
         
         // ลบข้อมูลการลงทะเบียนเก่าที่ไม่ได้เลือกแล้ว
         if (batchIdsToRemove.length > 0) {
-          console.log(`Removing ${batchIdsToRemove.length} old registrations`);
           await prisma.batchParticipant.deleteMany({
             where: {
               coachId: coachId,
@@ -300,7 +277,6 @@ export async function updateCoach(formData: FormData): Promise<ActionResult> {
       }
     } else {
       // กรณีไม่เลือกรุ่นใดๆ ให้ลบการลงทะเบียนทั้งหมด
-      console.log("No batches selected, removing all registrations");
       await prisma.batchParticipant.deleteMany({
         where: {
           coachId: coachId
@@ -328,9 +304,6 @@ export async function updateCoach(formData: FormData): Promise<ActionResult> {
         }
       }
     });
-    
-    console.log("Final coach data:", coachWithRegistrations);
-    console.log("Coach has batch participations:", coachWithRegistrations?.batchParticipations?.length || 0);
     
     // สร้างข้อมูลที่จะส่งกลับ
     const responseData = {
